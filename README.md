@@ -7,36 +7,46 @@ Campus Connect is a user-friendly web application designed to help navigate camp
 
 # Technology Stack: 
 ~ Frontend
-       React.js: Used for building the web app's user interface (UI). React's component-based structure allows us to create reusable components for the homepage, map navigation, building information, and destination pages.
-       Google Maps API: Powers the interactive map that displays campus buildings, navigation routes, and clickable markers. It also provides features like route direction and location sharing for a seamless user experience.
-       Tailwind CSS:Enables rapid UI styling with utility-first CSS classes, ensuring the app looks modern, is responsive, and adapts well to different screen sizes and devices.
+       - React.js: Used for building the web app's user interface (UI). React's component-based structure allows us to create reusable components for the homepage, map navigation, building information, and destination pages.
+       
+       - Google Maps API: Powers the interactive map that displays campus buildings, navigation routes, and clickable markers. It also provides features like route direction and location sharing for a seamless user experience.
+       
+      - Tailwind CSS:Enables rapid UI styling with utility-first CSS classes, ensuring the app looks modern, is responsive, and adapts well to different screen sizes and devices.
 ~ Backend
-      Express.js:Acts as the backend framework to handle API requests from the frontend. It facilitates communication between the Google Maps API, Firebase Firestore, and the app, ensuring data is delivered securely and efficiently.
-       Firebase Firestore:Used to store data related to campus buildings, such as names, descriptions, contact information, and office hours. Firestore's real-time syncing allows updates (e.g., parking availability or building status) to reflect instantly in the app.
-      Firebase Authentication: Ensures secure access to the app by managing user authentication. This feature allows students, faculty, and guests to log in and access personalized services, if necessary, during future expansions.  
+
+      - Express.js:Acts as the backend framework to handle API requests from the frontend. It facilitates communication between the Google Maps API, Firebase Firestore, and the app, ensuring data is delivered securely and efficiently.
+      
+       - Firebase Firestore:Used to store data related to campus buildings, such as names, descriptions, contact information, and office hours. Firestore's real-time syncing allows updates (e.g., parking availability or building status) to reflect instantly in the app.
+       
+      - Firebase Authentication: Ensures secure access to the app by managing user authentication. This feature allows students, faculty, and guests to log in and access personalized services, if necessary, during future expansions.  
+      
 ~ Tools
-      Git/GitHub:Used for version control and collaborative development. The team tracks progress, organizes sprints, and manages codebase updates efficiently using GitHub's project boards and branching features.
-      Visual Studio Code: The primary development environment, enhanced by extensions for React, Tailwind, and Firebase to streamline the coding process.
-      ClickUp:A project management tool used to divide tasks, assign roles, and ensure timely completion of sprints as outlined in the Work Breakdown Structure (WBS).
+      - Git/GitHub:Used for version control and collaborative development. The team tracks progress, organizes sprints, and manages codebase updates efficiently using GitHub's project boards and branching features.
+      
+       -Visual Studio Code: The primary development environment, enhanced by extensions for React, Tailwind, and Firebase to streamline the coding process.
+      
+      - ClickUp:A project management tool used to divide tasks, assign roles, and ensure timely completion of sprints as outlined in the Work Breakdown Structure (WBS).
 
       
 # Programming Languages
-      JavaScript: The core language for both frontend and backend development. It powers the dynamic user interface (React.js) and handles backend logic (Express.js), ensuring a seamless integration of features like map navigation and real-time data updates.
+
+      ~ JavaScript: The core language for both frontend and backend development. It powers the dynamic user interface (React.js) and handles backend logic (Express.js), ensuring a seamless integration of features like map navigation and real-time data updates.
 
 
        
 # How the Tools Work Together: 
 ~ Frontend Workflow
-       React.js: React builds the app's user interface. Each page (home, navigation/building info, map, destination) is a React component.
-      React interacts with the backend to fetch and display dynamic data, such as building descriptions and navigation routes.
-      It handles user input (e.g., searches, button clicks) and sends requests to the backend for processing.
-      Google Maps API: Embedded within the React app, Google Maps provides the interactive map interface.
-      It displays campus locations as markers, highlights routes for walking or driving, and dynamically updates navigation paths based on the user’s current location.
-      Tailwind CSS: Tailwind handles the app’s styling and layout. Its utility-first classes ensure the app is responsive (mobile-friendly) and visually appealing. The styling is tightly integrated with React components to ensure consistency.
+       - React.js: React builds the app's user interface. Each page (home, navigation/building info, map, destination) is a React component. React interacts with the backend to fetch and display dynamic data, such as building descriptions and navigation routes. It handles user input (e.g., searches, button clicks) and sends requests to the backend for processing.
+       
+      - Google Maps API: Embedded within the React app, Google Maps provides the interactive map interface. It displays campus locations as markers, highlights routes for walking or driving, and dynamically updates navigation paths based on the user’s current location.
+      
+      - Tailwind CSS: Tailwind handles the app’s styling and layout. Its utility-first classes ensure the app is responsive (mobile-friendly) and visually appealing. The styling is tightly integrated with React components to ensure consistency.
 ~ Backend Workflow
-      Express.js: The backend serves as the bridge between the frontend and the database.It defines RESTful APIs that the frontend calls to fetch building information, navigation details, or parking availability. Example: When a user searches for a building, React sends a request to an API route in Express. Express processes this request and fetches data from Firebase.
-      Firebase Firestore: The Firestore database stores campus-related data, such as building names, descriptions, office hours, and locations.Express retrieves data from Firestore and sends it to the frontend in JSON format.Firestore’s real-time features allow data (e.g., traffic updates, parking availability) to reflect instantly in the app without requiring a page reload.
-      Firebase Authentication: Manages user login and authentication securely.Provides role-based access if needed in the future (e.g., faculty-specific features).Example: During an expansion phase, authentication could personalize navigation or grant access to restricted data.
+      - Express.js: The backend serves as the bridge between the frontend and the database.It defines RESTful APIs that the frontend calls to fetch building information, navigation details, or parking availability. Example: When a user searches for a building, React sends a request to an API route in Express. Express processes this request and fetches data from Firebase.
+      
+      - Firebase Firestore: The Firestore database stores campus-related data, such as building names, descriptions, office hours, and locations.Express retrieves data from Firestore and sends it to the frontend in JSON format.Firestore’s real-time features allow data (e.g., traffic updates, parking availability) to reflect instantly in the app without requiring a page reload.
+      
+      - Firebase Authentication: Manages user login and authentication securely.Provides role-based access if needed in the future (e.g., faculty-specific features).Example: During an expansion phase, authentication could personalize navigation or grant access to restricted data.
 
 
 
