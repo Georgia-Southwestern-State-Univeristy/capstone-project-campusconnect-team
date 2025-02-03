@@ -1,33 +1,30 @@
-import React from "react";
-// Import necessary modules from react-router-dom
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { testFirestoreConnection } from "./utils/firestoreTest";
 
-// Import the Welcome and Building components
+// Importing Pages
 import Welcome from "./pages/Welcome";
 import Building from "./pages/Building";
-import NotFound from "./pages/NotFound"; // Optional: Handles 404 pages
+import NotFound from "./pages/NotFound";
 
-// Define the main App component
-function App() {
+const App = () => {
     console.log("✅ App Component Loaded");
+
+    useEffect(() => {
+        testFirestoreConnection(); // Runs Firestore test when app starts
+    }, []);
+
     return (
-        // Set up the Router to handle navigation
         <Router>
             <div className="min-h-screen bg-gray-100">
                 <Routes>
-                    {/* Home/Welcome Page */}
-                    <Route path="/" element={<Welcome />} />
-
-                    {/* Dynamic Building Page */}
-                    <Route path="/building/:id" element={<Building />} />
-
-                    {/* Catch-All Route (404 Page) */}
-                    <Route path="*" element={<NotFound />} />
+                    <Route path="/" element={<Welcome />} /> {/* Route for Welcome page */}
+                    <Route path="/building/:id" element={<Building />} /> {/* Route for Building page */}
+                    <Route path="*" element={<NotFound />} /> {/* Route for NotFound page */}
                 </Routes>
             </div>
         </Router>
     );
-}
+};
 
-// Export the App component as the default export
 export default App;

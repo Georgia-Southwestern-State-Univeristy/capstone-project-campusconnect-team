@@ -12,7 +12,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDA89ysQ-L37eusY2iVLqKREuBUklHAG7U",
   authDomain: "campusconnect-capstone.firebaseapp.com",
   projectId: "campusconnect-capstone",
-  storageBucket: "campusconnect-capstone.firebasestorage.app",
+  storageBucket: "campusconnect-capstone.appspot.com",
   messagingSenderId: "652800235257",
   appId: "1:652800235257:web:0009df955367fca89d3428",
   measurementId: "G-QXTTR3C0SN"
