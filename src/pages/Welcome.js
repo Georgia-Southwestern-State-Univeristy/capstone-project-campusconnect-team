@@ -3,87 +3,77 @@ import { Link } from "react-router-dom";
 import { searchBuildings } from "../services/firestoreSearchService";
 
 const Welcome = () => {
-    const [query, setQuery] = useState("");
-    const [results, setResults] = useState([]);
+    const [query, setQuery] = useState(""); // State to store the search query
+    const [results, setResults] = useState([]); // State to store search results
 
-    // Handles search logic
-    const handleSearch = async () => {
+    const handleSearch = async (event) => {
+        event.preventDefault();
         if (query.trim() === "") return;
-        const buildings = await searchBuildings(query);
-        setResults(buildings);
+
+        const results = await searchBuildings(query);
+        setResults(results);
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-between bg-navy text-white px-4">
-            
-            {/* Main Content */}
-            <div className="flex-grow flex flex-col items-center justify-center">
-                {/* Title */}
-                <h1 className="text-5xl font-extrabold">Welcome to</h1>
-                <h2 className="text-6xl font-extrabold text-gold mt-2">CampusConnect!</h2>
-                <p className="mt-4 text-lg text-gray-300 text-center px-6">
-                    Find campus buildings quickly!
-                </p>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-navy">
+            <h1 className="text-5xl font-bold text-white mb-8">Welcome to CampusConnect</h1>
+            <form onSubmit={handleSearch} className="flex w-full max-w-md">
+                <input
+                    type="text" // Input field for search query
+                    placeholder="🔍 Search for a building or service..." // Placeholder text
+                    value={query} // Bind input value to query state
+                    onChange={(e) => setQuery(e.target.value)} // Update query state on input change
+                    className="flex-grow px-4 py-2 text-black outline-none" // Styling for input field
+                />
+                <button
+                    type="submit" // Submit button for search form
+                    className="bg-gold text-white px-6 py-2 font-semibold hover:bg-[#B48225]" // Styling for button
+                >
+                    Search
+                </button>
+            </form>
 
-                {/* Search Bar */}
-                <div className="mt-6 w-full max-w-lg flex items-center bg-white rounded-full shadow-md overflow-hidden">
-                    <input 
-                        type="text" 
-                        placeholder="🔍 Search for a building..." 
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        className="flex-grow px-4 py-2 text-black outline-none"
-                    />
-                    <button 
-                        onClick={handleSearch} 
-                        className="bg-gold text-white px-6 py-2 font-semibold hover:bg-[#B48225]"
-                    >
-                        Search
-                    </button>
+            {/* Suggested Searches */}
+            {results.length === 0 && query === "" && (
+                <div className="mt-6 flex flex-wrap justify-center gap-4">
+                    {["Library", "Gym", "Cafe", "Public Safety"].map((name) => (
+                        <button
+                            key={name} // Unique key for each button
+                            onClick={() => setQuery(name.toLowerCase())} // Set query state to suggested search
+                            className="px-5 py-2 bg-gold text-white rounded-full shadow-lg hover:bg-[#B48225]" // Styling for button
+                        >
+                            {name}
+                        </button>
+                    ))}
                 </div>
+            )}
 
-                {/* Display Recommendations if No Search */}
-                {results.length === 0 && query === "" && (
-                    <div className="mt-6 flex flex-wrap justify-center gap-4">
-                        {["Library", "Gym", "Cafe", "Public Safety"].map((name) => (
-                            <button 
-                                key={name}
-                                onClick={() => setQuery(name.toLowerCase())}
-                                className="px-5 py-2 bg-gold text-white rounded-full shadow-lg hover:bg-[#B48225]"
+            {/* Display Search Results */}
+            <div className="mt-4">
+                {results.length > 1 ? (
+                    <div className="text-white">
+                        <p className="text-lg text-gray-300 mb-2">Select a location:</p> {/* Prompt to select a location */}
+                        {results.map((building) => (
+                            <Link
+                                key={building.id} // Unique key for each result
+                                to={`/building/${building.id}`} // Link to building page
+                                className="block py-2 px-4 bg-gray-800 rounded mb-2 hover:bg-gray-700" // Styling for link
                             >
-                                {name}
-                            </button>
+                                {building.name}
+                            </Link>
                         ))}
                     </div>
-                )}
-
-                {/* Display Search Results */}
-                <div className="mt-4">
-                    {results.length > 0 ? (
-                        results.map((building) => (
-                            <Link
-                                key={building.id}
-                                to={`/building/${building.id}`}
-                                className="block mt-2 text-lg text-gold hover:underline"
-                            >
-                                {building.building_name}
+                ) : (
+                    results.length === 1 && (
+                        <div className="text-white">
+                            <p className="text-lg text-gray-300 mb-2">Redirecting to building...</p>
+                            <Link to={`/building/${results[0].id}`} className="block py-2 px-4 bg-gray-800 rounded mb-2 hover:bg-gray-700">
+                                {results[0].name}
                             </Link>
-                        ))
-                    ) : (
-                        query && <p className="text-gray-400 mt-2">No results found.</p>
-                    )}
-                </div>
+                        </div>
+                    )
+                )}
             </div>
-
-            {/* Footer */}
-            <footer className="w-full bg-gold py-4">
-                <div className="flex justify-center space-x-6 text-white text-sm">
-                    <Link to="/contact" className="hover:underline">Contact Us</Link>
-                    <Link to="/privacy" className="hover:underline">Privacy</Link>
-                    <Link to="/about" className="hover:underline">About</Link>
-                    <Link to="/help" className="hover:underline">Help</Link>
-                </div>
-            </footer>
         </div>
     );
 };

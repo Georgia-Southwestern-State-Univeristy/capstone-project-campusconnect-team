@@ -3,40 +3,44 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 
 /**
  * Search buildings by user input query.
- * Matches building_name or keywords stored in search_keywords array.
+ * Matches building_name, search_keywords, or services_offered.
  */
 export const searchBuildings = async (searchQuery) => {
     if (!searchQuery) return []; // Don't search if query is empty
 
     const buildingsRef = collection(db, "buildings");
+    let results = [];
 
-    // Firestore query to search by name or keywords
-    const q = query(
+    // First, search by name or keywords
+    const keywordQuery = query(
         buildingsRef,
-        where("search_keywords", "array-contains", searchQuery.toLowerCase()) // Case-insensitive search
+        where("search_keywords", "array-contains", searchQuery.toLowerCase())
     );
 
-    const querySnapshot = await getDocs(q);
-    let results = [];
-    
-    querySnapshot.forEach((doc) => {
+    const keywordSnapshot = await getDocs(keywordQuery);
+    keywordSnapshot.forEach((doc) => {
         results.push({ id: doc.id, ...doc.data() });
     });
 
-    // Fallback: If no results found, try searching with 'building_name' using a range query
+    // If only one result, return immediately
+    if (results.length === 1) {
+        return results;
+    }
+
+    // If no results found, try searching by services_offered
     if (results.length === 0) {
-        console.log(`🔍 No exact matches for '${searchQuery}', trying partial match...`);
-        const fallbackQuery = query(
+        console.log(`🔍 No name matches for '${searchQuery}', searching by services...`);
+        const serviceQuery = query(
             buildingsRef,
-            where("building_name", ">=", searchQuery),
-            where("building_name", "<=", searchQuery + "\uf8ff")
+            where("services_offered", "array-contains", searchQuery)
         );
-        
-        const fallbackSnapshot = await getDocs(fallbackQuery);
-        fallbackSnapshot.forEach((doc) => {
+
+        const serviceSnapshot = await getDocs(serviceQuery);
+        serviceSnapshot.forEach((doc) => {
             results.push({ id: doc.id, ...doc.data() });
         });
     }
 
+    // If still only one result, return it
     return results;
 };
