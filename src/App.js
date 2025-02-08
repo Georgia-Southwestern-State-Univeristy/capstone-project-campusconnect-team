@@ -1,4 +1,6 @@
+//imports
 import React, { useEffect } from "react";
+//wraps app to use react router (enables navigation without page reloads)
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { testFirestoreConnection } from "./utils/firestoreTest";
 
@@ -16,11 +18,16 @@ const App = () => {
 
     return (
         <Router>
+            {/*light backround color for the app w/ tailwind */}
             <div className="min-h-screen bg-gray-100">
+                {/*define routes */}
                 <Routes>
-                    <Route path="/" element={<Welcome />} /> {/* Route for Welcome page */}
-                    <Route path="/building/:id" element={<Building />} /> {/* Route for Building page */}
-                    <Route path="*" element={<NotFound />} /> {/* Route for NotFound page */}
+                    {/* Route for Welcome page */}
+                    <Route path="/" element={<Welcome />} /> 
+                    {/* Dynamic route for Building page */}
+                    <Route path="/building/:id" element={<Building />} />
+                    {/* Route for NotFound page */} 
+                    <Route path="*" element={<NotFound />} /> 
                 </Routes>
             </div>
         </Router>
