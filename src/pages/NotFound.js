@@ -1,4 +1,4 @@
-/* 4040 error page */ 
+/* 404 error page */ 
 
 import React from "react";
 import { Link } from "react-router-dom";
