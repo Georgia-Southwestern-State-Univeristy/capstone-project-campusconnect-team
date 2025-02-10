@@ -78,3 +78,176 @@ Campus Connect is a user-friendly web application designed to help navigate camp
  
 ## Secure User Access:
    * Firebase Authentication for secure login/signup.
+
+
+# Installation and Setup Instructions
+### 1. Set up GitHub Environment
+
+ ```sh
+ git config --global user.name "Your Name"
+ git config --global user.email "your.email@example.com"
+ 
+ git clone https://github.com/Georgia-Southwestern-State-Univeristy/capstone-project-campusconnect-team.git
+ 
+ cd capstone-project-campusconnect-team
+ git pull origin main
+ git checkout -b branch_name
+ git branch
+```
+### 2.Intialize Git 
+ ```sh
+git init
+git checkout -b branch_name
+git branch
+
+git add .
+git commit -m "Initial project structure"
+git push -u origin branch_name
+```
+### 3. Set up Dependencies
+```sh
+npm init -y
+npm install react
+npm install react-dom
+npm install react-router-dom
+npm install firebase
+```
+ensure package.json contains: 
+```sh
+"scripts": {
+  "start": "react-scripts start",
+  "build": "react-scripts build",
+  "test": "react-scripts test"
+}
+```
+Implement Tailwind CSS by adding it as a CDN in the <head> section of index.html.
+
+Run the application:
+```sh
+npm start
+```
+
+# Description of Pages:
+
+## `/src/pages`:
+
+### `Welcome.js`:
+   * A landing page of the CampusConnect web application. It provides users with an entry point to search for buildings and services on campus efficiently. This page is designed to be user-friendly and intuitive, allowing students, faculty, and visitors to quickly find important locations using the search bar or predefined recommendation buttons.
+   * Features:
+     - Displays a welcoming message with the application's name and purpose.
+     - Connects to the search system and retrieves data from Firebase Firestore.
+     - Implements real-time search functionality:
+       - Queries Firestore for matching building names.
+       - Displays search results in a dropdown list.
+       - Redirects users to a building’s page if only one match is found.
+     - Offers recommendation buttons for commonly searched places (Library, Gym, Cafe, etc.).
+     - Enhances user experience with a responsive UI and smooth navigation.
+
+### `Building.js`:
+   * Responsible for rendering detailed information about a specific building when a user navigates to its page. This includes displaying its name, image, description, contact information, operating hours, services offered, and embedding a Google Maps location for navigation.
+   * Features:
+     - Connects with Firestore to fetch building data.
+     - Uses React Router for page navigation.
+     - Handles search functionality using `firestoreSearchService.js`.
+     - Integrates Google Maps API for location visualization.
+
+## `/src/services`:
+
+### `firestoreSearchService.js`:
+   * Handles search functionality for the CampusConnect application. It queries the Firestore database to find buildings that match the user's search input.
+   * Features:
+     - Searches using two approaches:
+       - **Keyword Matching**: Searches for the user's query in the "search_keywords" field of each building document.
+       - **Services Offered Matching**: Searches the "services_offered" field if no keyword match is found.
+     - The Welcome Page (`Welcome.js`) or Building Page (`Building.js`) calls `searchBuildings(query)`.
+     - The function queries Firestore:
+       - First by keyword (e.g., searching "library" might match "Library", "Learning Center", etc.).
+       - Then by services offered (e.g., searching "printing" finds buildings offering that service).
+     - The matching buildings are returned as an array to the frontend.
+     - The UI dynamically displays matching results to the user.
+     - Users can click on a result to navigate to a building’s detailed page (`Building.js`).
+
+### `firestoreService.js`:
+   * Contains a function called `updateDocumentsWithId`, which updates every document in the "buildings" collection of Firestore by adding an `id` field that matches the document’s unique Firestore ID.
+   * Features:
+     - Retrieves all documents from the "buildings" collection.
+     - Creates a Firestore batch operation to improve performance by committing multiple updates at once.
+     - Iterates through each document in the collection:
+       - Generates a reference to that document.
+       - Updates the document to include an "id" field with the document’s Firestore ID.
+     - Commits the batch operation, applying all updates efficiently in one transaction.
+     - Logs a confirmation message once all documents are updated.
+
+## `/src`:
+
+### `App.js`:
+   * Entry point of the CampusConnect application.
+   * Features:
+     - Sets up React Router to enable smooth navigation between pages without reloading.
+     - Defines routes for different pages:
+       - Welcome Page (`/`) → Main landing page for searching buildings.
+       - Building Page (`/building/:id`) → Displays detailed building information.
+       - NotFound Page (`*`) → Handles unmatched routes (404 page).
+     - Tests Firestore Connection when the app starts to ensure the database is accessible.
+     - Applies a Global Background Style to maintain UI consistency.
+
+### `Index.js`:
+   * The entry point for rendering the CampusConnect React application.
+   * Features:
+     - Initializes the React app using `ReactDOM.createRoot()` for React 18+ compatibility.
+     - Renders the `App` component inside the `<div id="root">` in `index.html`.
+     - Uses `React.StrictMode` to detect potential issues and ensure best practices in development mode.
+
+### `Index.html`:
+   * The core HTML structure for the CampusConnect web application.
+   * Features:
+     - Provides a container (`<div id="root">`) where the React app is rendered.
+     - Sets up metadata (`<meta>` tags) for character encoding and responsive design.
+     - Loads Tailwind CSS via CDN for styling.
+     - Defines a custom Tailwind theme with navy and gold brand colors.
+     - Applies a global background (`bg-navy text-white`) to maintain consistent UI styling.
+
+# Contributor Guidelines:
+
+## 1. Branching Strategy:
+   * Follow the **feature branch workflow**.
+   * Create a new branch for each feature or bug fix.
+   * **Branch naming convention**:
+     - `feature/<feature-name>` for new features.
+     - `bugfix/<issue-description>` for bug fixes.
+
+## 2. Commit Messages:
+   * Use the following format:
+     ```txt
+     [Feature] Implemented <feature-name>
+     [Bugfix] Fixed issue with <describe-fix>
+     ```
+   * Examples:
+     - `[Feature] Implemented real-time search functionality`
+     - `[Bugfix] Fixed issue with Firebase query performance`
+
+## 3. Code Standards:
+   * Use **consistent coding styles** across the project.
+   * Follow best practices for:
+     - **React**: Use functional components, hooks, and proper state management.
+     - **Firebase**: Optimize queries and adhere to security rules.
+
+## 4. Pull Requests:
+   * Create pull requests (PRs) before merging into the `main` branch.
+   * Include a **brief description** of the changes in the PR.
+   * Ensure the PR is linked to the relevant issue or feature.
+
+## 5. Testing:
+   * Test all features **before pushing** to the repository.
+   * Run `npm start` to check for UI issues and ensure the application runs smoothly.
+   * Verify **Firebase integration** and test database queries for accuracy and performance.
+
+
+
+
+
+
+
+
+
+
