@@ -9,14 +9,13 @@ Campus Connect is a user-friendly web application designed to help navigate camp
   * Tailwind CSS:Enables rapid UI styling with utility-first CSS classes, ensuring the app looks modern, is responsive, and adapts well to different screen sizes and devices.
     
 ## Backend
-  * Express.js:Acts as the backend framework to handle API requests from the frontend. It facilitates communication between the Google Maps API, Firebase Firestore, and the app, ensuring data is delivered securely and efficiently.
   * Firebase Firestore:Used to store data related to campus buildings, such as names, descriptions, contact information, and office hours. Firestore's real-time syncing allows updates (e.g., parking availability or building status) to reflect instantly in the app.
   * Firebase Authentication: Ensures secure access to the app by managing user authentication. This feature allows students, faculty, and guests to log in and access personalized services, if necessary, during future expansions. 
       
 ## Tools
   * Git/GitHub:Used for version control and collaborative development. The team tracks progress, organizes sprints, and manages codebase updates efficiently using GitHub's project boards and branching features.
   * Visual Studio Code: The primary development environment, enhanced by extensions for React, Tailwind, and Firebase to streamline the coding process.
-  * ClickUp:A project management tool used to divide tasks, assign roles, and ensure timely completion of sprints as outlined in the Work Breakdown Structure (WBS).
+  * Github projects:A project management tool used to divide tasks, assign roles, and ensures timely completion of sprints.
 
       
 # Programming Languages:
@@ -32,9 +31,7 @@ Campus Connect is a user-friendly web application designed to help navigate camp
     
   * Tailwind CSS: Tailwind handles the app’s styling and layout. Its utility-first classes ensure the app is responsive (mobile-friendly) and visually appealing. The styling is tightly integrated with React components to ensure consistency.
       
-## Backend Workflow
-  * Express.js: The backend serves as the bridge between the frontend and the database.It defines RESTful APIs that the frontend calls to fetch building information, navigation details, or parking availability. Example: When a user searches for a building, React sends a request to an API route in Express. Express processes this request and fetches data from Firebase.
-      
+## Backend Workflow      
   * Firebase Firestore: The Firestore database stores campus-related data, such as building names, descriptions, office hours, and locations.Express retrieves data from Firestore and sends it to the frontend in JSON format.Firestore’s real-time features allow data (e.g., traffic updates, parking availability) to reflect instantly in the app without requiring a page reload.
       
   * Firebase Authentication: Manages user login and authentication securely.Provides role-based access if needed in the future (e.g., faculty-specific features).Example: During an expansion phase, authentication could personalize navigation or grant access to restricted data.
@@ -49,9 +46,7 @@ Campus Connect is a user-friendly web application designed to help navigate camp
    * VS Code is the primary development environment. Developers write code, debug issues, and use extensions for React, Tailwind, and Firebase to speed up development.
   ## Lucidchart:
    * Used during the planning phase to create wireframes, database schemas, and user flow diagrams.Provides a clear blueprint for developers, reducing confusion during implementation.
-  ## ClickUp:
-   * ClickUp is the team’s project management tool.Tasks from the Work Breakdown Structure (WBS) are tracked here, ensuring clear assignments and deadlines.
-
+ 
 
 
 
