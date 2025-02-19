@@ -74,6 +74,37 @@ Campus Connect is a user-friendly web application designed to help navigate camp
 ## Secure User Access:
    * Firebase Authentication for secure login/signup.
 
+# Project Directory Structure
+├── node_modules/ # Node.js dependencies (auto-generated)
+├── public/ # Public assets
+│ └── index.html # Main HTML file
+├── src/ # Source code for the React app
+│ ├── pages/ # Page components
+│ │ ├── Building.js # Detailed building information page
+│ │ ├── NotFound.js # 404 error page
+│ │ └── Welcome.js # Landing page with search functionality
+│ ├── services/ # Services for backend integration
+│ │ ├── auth.js # Authentication service
+│ │ ├── firebase.js # Firebase configuration and setup
+│ │ ├── firestore.js # Firestore database operations
+│ │ ├── firestoreSearchService.js # Search functionality for Firestore
+│ │ └── firestoreService.js # Utility functions for Firestore
+│ ├── utils/ # Utility functions and helpers
+│ │ └── firestoreTest.js # Testing utilities for Firestore
+│ ├── App.js # Main React application component
+│ ├── index.js # Entry point for the React app
+│ └── firebase-config.js # Firebase configuration file
+├── .gitignore # Files and directories to ignore in Git
+├── package-lock.json # Lock file for dependencies
+├── package.json # Project dependencies and scripts
+└── README.md # Project documentation
+
+### Key Features:
+- The `src/` folder contains the main React application code.
+- The `pages/` directory includes components for the **Welcome**, **Building**, and **NotFound** pages.
+- The `services/` directory houses all backend-related services, such as Firebase integration, authentication, and Firestore operations.
+- The `utils/` folder contains utility functions, including testing utilities for Firestore.
+
 
 # Installation and Setup Instructions
 ### 1. Set up GitHub Environment
