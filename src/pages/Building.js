@@ -95,35 +95,31 @@ const Building = () => {
                 </Link>
 
                 {/* SEARCH BAR WITH DROPDOWN */}
-                <div className="relative">
-                    {/* Search Form calls handleSearch function when submitted  */} 
-                    <form onSubmit={handleSearch} className="relative w-64 flex">
+                <div className="relative mx-10">
+                    {/* Search Form calls handleSearch function when submitted */}
+                    <form onSubmit={handleSearch} className="relative w-full flex">
                         {/* Search Input */}
                         <input 
                             type="text" 
                             placeholder="🔍 Search for a building or service..." 
-                            //controlled componenet updates w/ setQuery
                             value={query}
-                            //update query state 
                             onChange={(e) => setQuery(e.target.value)}
-                            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none text-black"
+                            className="w-96 px-4 py-1 rounded-full border border-gray-300 focus:outline-none text-black"
                         />
                         <button 
-                            //form submission triggered 
                             type="submit"
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gold text-white px-4 py-1 rounded-full hover:bg-[#B48225]"
+                            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gold text-white px-4 py-1 rounded-full hover:bg-[#B48225]"
                         >
                             Search
                         </button>
                     </form>
 
-                    {/* DROPDOWN RESULTS - not working****/}
-                    {showDropdown && searchResults.length > 1 && ( //when true and more than 1 result 
+                    {/* DROPDOWN RESULTS */}
+                    {showDropdown && searchResults.length > 1 && (
                         <div className="absolute bg-white text-black w-full rounded-md shadow-lg mt-2">
                             <ul>
-                                {/*map through search results and display them + change color when hovered*/} 
                                 {searchResults.map((building) => (
-                                    <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2">  {/*each result is a link to the building page */}
+                                    <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2">
                                         <Link to={`/building/${building.id}`}>
                                             {building.building_name}
                                         </Link>
@@ -136,7 +132,6 @@ const Building = () => {
 
                 {/* Navigation Links */}
                 <div className="space-x-6 text-navy font-medium">
-                    {/*each link from react-router-dom*/}
                     <Link to="/" className="hover:underline">Home</Link>
                     <Link to="/about" className="hover:underline">About</Link>
                     <Link to="/services" className="hover:underline">Services</Link>
@@ -150,36 +145,38 @@ const Building = () => {
                     {building?.building_image && (
                         <img src={building.building_image} alt={building.building_name} className="w-full h-64 object-cover rounded-lg mb-4" />
                     )}
-                    {/* Building Name & description*/}
+                    {/* Building Name & description */}
                     <h1 className="text-5xl font-bold">{building.building_name}</h1>
                     <p className="text-lg mt-4">{building.description}</p>
 
+                    {/* Get Directions Button */}
+                    <div>
+                        <button
+                            className="bg-gold text-white px-4 py-2 rounded-full mt-4 mr-2 hover:bg-[#B48225]"
+                            onClick={() => alert('Get Directions clicked')}
+                        >
+                            Get Directions
+                        </button>
+                    </div>
+
                     {/* Additional Details */}
                     <div className="mt-6">
-                        {/*renders only if building.phone_num exists in firebase*/}
                         {building?.phone_num && (
                             <>
                                 <p className="font-bold text-lg">📞 Phone:</p>
-                                {/*check if phone_num is an array, if so map through it and display each number in a list */}
                                 <ul className="list-disc ml-6">
                                     {Array.isArray(building.phone_num) ? building.phone_num.map((phone, index) => <li key={index}>{phone}</li>) : <li>{building.phone_num}</li>}
                                 </ul>
                             </>
                         )}
-
-                        {/*renders only if building.email exists in firebase*/}
                         {building?.email && (
                             <>
                                 <p className="font-bold text-lg">📧 Email:</p>
-                                {/*check if email is an array, if so map through it and display each number in a list */}
-                                {/*if not an array, just display email + .map() help iterate & create <li> for each email */}
                                 <ul className="list-disc ml-6">
                                     {Array.isArray(building.email) ? building.email.map((email, index) => <li key={index}>{email}</li>) : <li>{building.email}</li>}
                                 </ul>
                             </>
                         )}
-
-                        {/*renders only if building.operating_hours exists in firebase*/}
                         {building?.operating_hours && (
                             <>
                                 <p className="font-bold text-lg">🕒 Operating Hours:</p>
@@ -188,7 +185,6 @@ const Building = () => {
                                 </ul>
                             </>
                         )}
-
                         {building?.services_offered && (
                             <>
                                 <p className="font-bold text-lg">🛠️ Services Offered:</p>
@@ -200,8 +196,7 @@ const Building = () => {
                     </div>
                 </div>
 
-                
-                {/* Google Maps Embe, only reneder if lat & long avail*/}
+                {/* Google Maps Embed */}
                 <div className="w-1/2 bg-gold flex items-center justify-center">
                     {building?.lat && building?.lng ? (
                         <iframe
