@@ -134,7 +134,6 @@ const Building = () => {
                 <div className="space-x-6 text-navy font-medium">
                     <Link to="/" className="hover:underline">Home</Link>
                     <Link to="/about" className="hover:underline">About</Link>
-                    <Link to="/services" className="hover:underline">Services</Link>
                     <Link to="/contact" className="hover:underline">Contact</Link>
                 </div>
             </nav>
@@ -149,7 +148,7 @@ const Building = () => {
                     <h1 className="text-5xl font-bold">{building.building_name}</h1>
                     <p className="text-lg mt-4">{building.description}</p>
 
-                    {/* Get Directions Button */}
+                    {/* Get Directions Button 
                     <div>
                         <button
                             className="bg-gold text-white px-4 py-2 rounded-full mt-4 mr-2 hover:bg-[#B48225]"
@@ -157,7 +156,7 @@ const Building = () => {
                         >
                             Get Directions
                         </button>
-                    </div>
+                    </div>*/}
 
                     {/* Additional Details */}
                     <div className="mt-6">
