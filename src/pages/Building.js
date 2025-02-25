@@ -7,11 +7,14 @@ import { db } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 //imports searchBuildings function to search for buildings
 import { searchBuildings } from "../services/firestoreSearchService";
+import MapNavigation from "../pages/MapNavigation"; // Import MapNavigation
+
 
 const Building = () => {
     //get building id from URL
     const { id } = useParams();
     const navigate = useNavigate();
+
     //store building data detched from fire store
     const [building, setBuilding] = useState(null);
     //boolean to check if data is still loading
@@ -23,6 +26,10 @@ const Building = () => {
     //boolean to check if dropdown should be shown****
     const [showDropdown, setShowDropdown] = useState(false);
 
+    //state to store user's location
+    const [userLocation, setUserLocation] = useState(null);
+    const [locationError, setLocationError] = useState(null);
+    const [locationBlocked, setLocationBlocked] = useState(false); // Tracks if location access is blocked
 
     //when id changes, fetch building data from firestore
     useEffect(() => {
@@ -52,6 +59,36 @@ const Building = () => {
         fetchBuilding();
     }, [id]);
 
+      // Request user location when component mounts
+      useEffect(() => {
+        //geolocation api to get user's location allowed in browser?
+        if (navigator.geolocation) {
+            //request user 's location
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    //set user's location to state & log it 
+                    console.log("✅ Location Access Granted:", position.coords);
+                    setUserLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    });
+                },
+                (error) => {
+                    //log error if location access denied
+                    console.error("❌ Location Access Denied:", error);
+                    setLocationBlocked(true); // User blocked location access & set 
+                    //display error message to user to get location 
+                    setLocationError("⚠️ Please enable location access to improve navigation.");
+                }, 
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 } // Force GPS accuracy (wait 10 secs & force fresh location reading; NOT cached)
+            );
+        } else {
+            setLocationError("⚠️ Geolocation is not supported by this browser.");
+        }
+    }, []); //empty array to run only once when component mounts
+
+
+
     const handleSearch = async (event) => {
         //prevent default behavior of form submission
         event.preventDefault();
@@ -61,7 +98,7 @@ const Building = () => {
         //call searchBuildings function to get search results
         const results = await searchBuildings(query);
         setSearchResults(results);
-        //show dropdown -not working **
+        //show dropdown  working **
         setShowDropdown(true);
 
         //if only one result, navigate to that building
@@ -117,7 +154,7 @@ const Building = () => {
                         </button>
                     </form>
 
-                    {/* DROPDOWN RESULTS - not working****/}
+                    {/* DROPDOWN RESULTS -  working****/}
                     {showDropdown && searchResults.length > 1 && ( //when true and more than 1 result 
                         <div className="absolute bg-white text-black w-full rounded-md shadow-lg mt-2">
                             <ul>
@@ -197,7 +234,58 @@ const Building = () => {
                                 </ul>
                             </>
                         )}
+
+                        {/* Show location error if denied */}
+                        {locationError && <p className="text-red-400">{locationError}</p>}
+
+                        {/* "Get Directions" Button - Disabled if Location is Blocked */}
+                        {building?.lat && building?.lng && ( //latitute & longitude exists
+                            <div className="mt-6">
+                                <a
+                                    //open google maps with directions to building or block if location is blocked
+                                    onClick={(e) => {
+                                        if (locationBlocked) {
+                                            e.preventDefault(); // Prevent navigation if location is blocked
+                                        } 
+                                        // else {
+                                        //     //open google maps with directions to building in new tab w/ user lcation
+                                        //     window.open(
+                                        //         `https://www.google.com/maps/dir/?api=1&destination=${building.lat},${building.lng}${
+                                        //             userLocation ? `&origin=${userLocation.lat},${userLocation.lng}` : "&origin=My+Location"
+                                        //         }`,
+                                        //         "_blank"
+                                        //     );
+                                        // }
+                                    }}
+                                    //apply different styles based on locationBlocked state
+                                    className={`px-4 py-2 rounded-full mt-4 mr-2 transition ${
+                                        locationBlocked
+                                            ? "bg-gray-500 text-gray-300 cursor-not-allowed" //grey if blocked
+                                            : "bg-gold text-white hover:bg-[#B48225]"   //regular gold if allowed 
+                                    }`}
+                                    //prevent navigation if location is blocked 
+                                    href={locationBlocked ? "#" : `https://www.google.com/maps/dir/?api=1&destination=${building.lat},${building.lng}${
+                                        userLocation ? `&origin=${userLocation.lat},${userLocation.lng}` : "&origin=My+Location"
+                                    }`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    📍 Get Directions
+                                </a>
+                            </div>
+                        )}
+                        {/* Show Map Only if Location is Available */}
+                    {building?.lat && building?.lng && userLocation && (
+                        <MapNavigation destination={{ lat: building.lat, lng: building.lng }} userLocation={userLocation} />
+                    )}
                     </div>
+                    {/* Pass userLocation to MapNavigation */}
+                    <div className="w-1/2 bg-gold flex items-center justify-center">
+                        {building?.lat && building?.lng && userLocation && (
+                            <MapNavigation destination={{ lat: building.lat, lng: building.lng }} userLocation={userLocation} />
+                        )}
+                    </div>
+
                 </div>
 
                 
