@@ -7,6 +7,12 @@ const MapNavigation = ({  destination, userLocation  }) => {
     const mapRef = useRef(null);
 
     useEffect(() => {
+        // Check if Google Maps API is loaded
+        if (!window.google || !window.google.maps) {
+            console.error("Google Maps API is not loaded.");
+            return;
+        }
+
         if (!userLocation || !destination) return; // Exit if user location isn't available
 
         //initialize google maps & center on destination

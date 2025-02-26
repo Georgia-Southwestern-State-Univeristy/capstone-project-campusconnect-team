@@ -134,7 +134,7 @@ const Building = () => {
                 {/* SEARCH BAR WITH DROPDOWN */}
                 <div className="relative">
                     {/* Search Form calls handleSearch function when submitted  */} 
-                    <form onSubmit={handleSearch} className="relative w-64 flex">
+                    <form onSubmit={handleSearch} className="relative w-full flex">
                         {/* Search Input */}
                         <input 
                             type="text" 
@@ -160,11 +160,16 @@ const Building = () => {
                             <ul>
                                 {/*map through search results and display them + change color when hovered*/} 
                                 {searchResults.map((building) => (
-                                    <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2">  {/*each result is a link to the building page */}
-                                        <Link to={`/building/${building.id}`}>
-                                            {building.building_name}
-                                        </Link>
-                                    </li>
+                                    <li 
+                                    key={building.id} 
+                                    className="hover:bg-gray-200 cursor-pointer px-4 py-2"
+                                    onClick={() => setShowDropdown(false)} // Hide dropdown on click
+                                >  
+                                    {/* Each result is a link to the building page */}
+                                    <Link to={`/building/${building.id}`}>
+                                        {building.building_name}
+                                    </Link>
+                                </li>
                                 ))}
                             </ul>
                         </div>
