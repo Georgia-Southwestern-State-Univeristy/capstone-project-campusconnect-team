@@ -1,5 +1,5 @@
 //imports React and React DOM to render the app
-import React, { useEffect, useState } from "react"; //react hooks to fetch building data & handle dynamic states 
+import React, { useEffect, useState, useCallback} from "react"; //react hooks to fetch building data & handle dynamic states 
 //param to get building id from URL, useNavigate to get to other pages, Link to navigate without page reloads
 import { useParams, Link, useNavigate } from "react-router-dom";
 //imports firebase db (instance), doc, getDoc to fetch building data
@@ -7,6 +7,7 @@ import { db } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 //imports searchBuildings function to search for buildings
 import { searchBuildings } from "../services/firestoreSearchService";
+//imports MapNavigation component to display map
 import MapNavigation from "../pages/MapNavigation"; // Import MapNavigation
 
 
@@ -31,6 +32,12 @@ const Building = () => {
     const [locationError, setLocationError] = useState(null);
     const [locationBlocked, setLocationBlocked] = useState(false); // Tracks if location access is blocked
 
+    // Travel mode selection state (default: Walking)
+    const [travelMode, setTravelMode] = useState("WALKING");
+    const [distance, setDistance] = useState(null);
+    const [duration, setDuration] = useState(null);
+    const [showTravelDropdown, setShowTravelDropdown] = useState(false); // Controls dropdown visibility
+
     //when id changes, fetch building data from firestore
     useEffect(() => {
         const fetchBuilding = async () => {
@@ -40,6 +47,7 @@ const Building = () => {
                 const docSnap = await getDoc(docRef);
                 {/*if building exists, set building data to state */}
                 if (docSnap.exists()) {
+                    console.log("Destination updated:", docSnap.data());
                     setBuilding(docSnap.data());
                 } 
                 else {
@@ -57,21 +65,27 @@ const Building = () => {
         };
 
         fetchBuilding();
-    }, [id]);
+    }, [id]); //run whenever id changes
 
       // Request user location when component mounts
       useEffect(() => {
-        //geolocation api to get user's location allowed in browser?
+        //geolocation api to get user's location allowed in browser
         if (navigator.geolocation) {
             //request user 's location
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    //set user's location to state & log it 
-                    console.log("✅ Location Access Granted:", position.coords);
-                    setUserLocation({
+                    const newLocation = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
-                    });
+                    };
+    
+                    // Only update userLocation if the coordinates have changed
+                    if (
+                        !userLocation || newLocation.lat !== userLocation.lat || newLocation.lng !== userLocation.lng
+                    ) {
+                        console.log("✅ Location Access Granted:", newLocation);
+                        setUserLocation(newLocation);
+                    }
                 },
                 (error) => {
                     //log error if location access denied
@@ -85,10 +99,10 @@ const Building = () => {
         } else {
             setLocationError("⚠️ Geolocation is not supported by this browser.");
         }
-    }, []); //empty array to run only once when component mounts
+    }, [userLocation]); //empty array to run only once when component mounts
 
 
-
+    // handles search form submission
     const handleSearch = async (event) => {
         //prevent default behavior of form submission
         event.preventDefault();
@@ -104,14 +118,54 @@ const Building = () => {
         //if only one result, navigate to that building
         if (results.length === 1) {
             navigate(`/building/${results[0].id}`);
+            setShowDropdown(false); // Close dropdown after navigation
         }
     };
+
+    // Handles dropdown selection
+    const handleTravelModeChange = (mode) => {
+        console.log("Travel mode updated:", mode);
+        setTravelMode(mode);
+        setShowTravelDropdown(false); // Close dropdown after selection
+    };
+
+     // Callback function to handle route calculation & update distance & duration once route is calculated
+     const handleRouteCalculated = useCallback((data) => { {/*callback function doesn't get recal unless travelMode change */}
+        setDistance((prev) => ({
+            //keep previous distance for other travel modes & update to selected one 
+            ...prev,
+            [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.distance, //data from Google Maps Directions API
+        }));
+        setDuration((prev) => ({
+            //keep previous duration for other travel modes & update to selected one
+            ...prev,
+            [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.duration,//toLowerCase() to match travelMode state
+        }));
+    }, [travelMode]);
+
+    // Open Google Maps with travel route selected, destination, and user location 
+    const openGoogleMaps = () => {
+        //check if user location or destination is missing ebfore opening maps
+        if (!userLocation || !building?.lat || !building?.lng) {
+            alert("Missing location data."); //display alert if missing data
+            return; //exit function
+        }
+
+        //open google maps with user location, destination, and travel mode
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${building.lat},${building.lng}&travelmode=${travelMode.toLowerCase()}`;
+        //open maps in new tab
+        window.open(mapsUrl, "_blank");
+    };
+
+
+    
 
     //while loading, show loading message, else if no building found, show error message
     if (loading) {
         return <div className="text-white text-center mt-10">Loading building details...</div>;
     }
 
+    //error message if building not found
     if (!building) {
         return (
             <div className="text-white text-center mt-10">
@@ -156,11 +210,12 @@ const Building = () => {
 
                     {/* DROPDOWN RESULTS -  working****/}
                     {showDropdown && searchResults.length > 1 && ( //when true and more than 1 result 
-                        <div className="absolute bg-white text-black w-full rounded-md shadow-lg mt-2">
+                        <div className="absolute bg-white text-black w-full rounded-md shadow-lg mt-2 z-50">
                             <ul>
                                 {/*map through search results and display them + change color when hovered*/} 
                                 {searchResults.map((building) => (
-                                    <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2">  {/*each result is a link to the building page */}
+                                    
+                                    <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2"  onClick={() => setShowDropdown(false)}>  {/*each result is a link to the building page */}
                                         <Link to={`/building/${building.id}`}>
                                             {building.building_name}
                                         </Link>
@@ -170,19 +225,19 @@ const Building = () => {
                         </div>
                     )}
                 </div>
+        
 
                 {/* Navigation Links */}
                 <div className="space-x-6 text-navy font-medium">
                     {/*each link from react-router-dom*/}
                     <Link to="/" className="hover:underline">Home</Link>
                     <Link to="/about" className="hover:underline">About</Link>
-                    <Link to="/services" className="hover:underline">Services</Link>
                     <Link to="/contact" className="hover:underline">Contact</Link>
                 </div>
             </nav>
 
             <div className="flex h-screen">
-                <div className="w-1/2 bg-navy text-white p-10">
+                <div className="w-1/2 bg-navy text-white p-10 overflow-y-auto">
                     {/* Building Details */}
                     {building?.building_image && (
                         <img src={building.building_image} alt={building.building_name} className="w-full h-64 object-cover rounded-lg mb-4" />
@@ -191,6 +246,7 @@ const Building = () => {
                     <h1 className="text-5xl font-bold">{building.building_name}</h1>
                     <p className="text-lg mt-4">{building.description}</p>
 
+                    
                     {/* Additional Details */}
                     <div className="mt-6">
                         {/*renders only if building.phone_num exists in firebase*/}
@@ -234,79 +290,65 @@ const Building = () => {
                                 </ul>
                             </>
                         )}
-
-                        {/* Show location error if denied */}
+                        {/*display error message if location access is blocked*/}
                         {locationError && <p className="text-red-400">{locationError}</p>}
+                    </div>
+                </div> 
 
-                        {/* "Get Directions" Button - Disabled if Location is Blocked */}
-                        {building?.lat && building?.lng && ( //latitute & longitude exists
-                            <div className="mt-6">
-                                <a
-                                    //open google maps with directions to building or block if location is blocked
-                                    onClick={(e) => {
-                                        if (locationBlocked) {
-                                            e.preventDefault(); // Prevent navigation if location is blocked
-                                        } 
-                                        // else {
-                                        //     //open google maps with directions to building in new tab w/ user lcation
-                                        //     window.open(
-                                        //         `https://www.google.com/maps/dir/?api=1&destination=${building.lat},${building.lng}${
-                                        //             userLocation ? `&origin=${userLocation.lat},${userLocation.lng}` : "&origin=My+Location"
-                                        //         }`,
-                                        //         "_blank"
-                                        //     );
-                                        // }
-                                    }}
-                                    //apply different styles based on locationBlocked state
-                                    className={`px-4 py-2 rounded-full mt-4 mr-2 transition ${
-                                        locationBlocked
-                                            ? "bg-gray-500 text-gray-300 cursor-not-allowed" //grey if blocked
-                                            : "bg-gold text-white hover:bg-[#B48225]"   //regular gold if allowed 
-                                    }`}
-                                    //prevent navigation if location is blocked 
-                                    href={locationBlocked ? "#" : `https://www.google.com/maps/dir/?api=1&destination=${building.lat},${building.lng}${
-                                        userLocation ? `&origin=${userLocation.lat},${userLocation.lng}` : "&origin=My+Location"
-                                    }`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                    {/* Google Maps Preview */}
+                    <div className="w-1/2 relative">
+                        {/* Map Navigation Component */}
+                        <div className="h-full w-full">
+                            {/*check if building lat & lng exists and user location exists before rendering  */}
+                            {building?.lat && building?.lng && userLocation && (
+                                <MapNavigation
+                                    destination={{ lat: building.lat, lng: building.lng }} //pass destination
+                                    userLocation={userLocation} //pass user location
+                                    travelMode={travelMode} //pass travel mode
+                                    onRouteCalculated={handleRouteCalculated} // Pass the callback function to update distance and duration once route is calculated
+                                />
+                            )}
+                        </div>
+                    
+    
+    
+                        {/* Get Directions Dropdown Below Map */}
+                        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-4">
+                                {/* Button to toggle dropdown visibility */}
+                                <button
+                                    className="bg-gold text-white px-4 py-2 rounded-full hover:bg-[#B48225] transition-all"
+                                    onClick={() => setShowTravelDropdown(!showTravelDropdown)} //toggle dropdown visibility
                                 >
                                     📍 Get Directions
-                                </a>
-                            </div>
-                        )}
-                        {/* Show Map Only if Location is Available */}
-                    {building?.lat && building?.lng && userLocation && (
-                        <MapNavigation destination={{ lat: building.lat, lng: building.lng }} userLocation={userLocation} />
-                    )}
-                    </div>
-                    {/* Pass userLocation to MapNavigation */}
-                    <div className="w-1/2 bg-gold flex items-center justify-center">
-                        {building?.lat && building?.lng && userLocation && (
-                            <MapNavigation destination={{ lat: building.lat, lng: building.lng }} userLocation={userLocation} />
-                        )}
-                    </div>
+                                </button>
 
-                </div>
-
-                
-                {/* Google Maps Embe, only reneder if lat & long avail*/}
-                <div className="w-1/2 bg-gold flex items-center justify-center">
-                    {building?.lat && building?.lng ? (
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            frameBorder="0"
-                            style={{ border: 0 }}
-                            src={`https://www.google.com/maps/embed/v1/place?q=${building.lat},${building.lng}&key=AIzaSyDzTdK2hUfa9zinFeyS1PJ2bfN8ekxfrbs`}
-                            allowFullScreen
-                        ></iframe>
-                    ) : (
-                        <p className="text-center text-black">Map location not available</p>
-                    )}
+                                {/* Dropdown to select travel mode - only when "Get Directions" clicked */}
+                                {showTravelDropdown && (
+                                    <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                                        {/* Dropdown options */}
+                                        <label className="block text-black text-lg font-bold p-2">Select Travel Mode:</label>
+                                        <select
+                                            className="w-full px-4 py-2 border border-gray-300 text-black"
+                                            value={travelMode} //set the selected travel mode
+                                            onChange={(e) => handleTravelModeChange(e.target.value)} //update travel mode when selected
+                                        >
+                                            {/*option for walking and driving with distance and duration */}
+                                            <option value="WALKING">🚶 Walking ({duration?.walking} - {distance?.walking})</option>
+                                            <option value="DRIVING">🚗 Driving ({duration?.driving} - {distance?.driving})</option>
+                                        </select>
+                                    </div>
+                                )}
+                                {/* Button to open Google Maps with route */}
+                                <button className="ml-4 bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-all"
+                                onClick={openGoogleMaps}> {/*calls the function to open google maps with route*/}
+                                    
+                                    🚀 Go
+                                </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
-};
+        );
+    };
 
 export default Building;
