@@ -197,12 +197,12 @@ const Building = () => {
                             value={query}
                             //update query state 
                             onChange={(e) => setQuery(e.target.value)}
-                            className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none text-black"
+                             className="w-full min-w-[400px] px-4 py-2 rounded-full border border-gray-300 focus:outline-none text-black"
                         />
                         <button 
                             //form submission triggered 
                             type="submit"
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gold text-white px-4 py-1 rounded-full hover:bg-[#B48225]"
+                            className="absolute left-80 top-1/2 transform -translate-y-1/2 bg-gold text-white px-4 py-2 rounded-full hover:bg-[#B48225]"
                         >
                             Search
                         </button>
