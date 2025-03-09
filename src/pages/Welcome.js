@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { searchBuildings } from "../services/firestoreSearchService";
+import Chatbot from "./chatbox";
 
 const Welcome = () => {
     // State to store the search query input
@@ -91,6 +92,8 @@ const Welcome = () => {
                     </div>
                 )}
             </div>
+            {/* Include the Chatbot component */}
+            <Chatbot />
         </div>
     );
 };
