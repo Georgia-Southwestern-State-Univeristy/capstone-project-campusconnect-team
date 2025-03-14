@@ -50,11 +50,27 @@ export const searchBuildings = async (searchQuery) => {
                 results.push({ id: doc.id, ...doc.data() }); // doc.id retrieves Firestire doc ID & spreads all fields from Firestore doc-> add the building to the results array
             }        
         });
+
+
+        // Search by department names or services
+        const departmentQuery = query(
+            buildingsRef,
+            where("departments", "array-contains", searchQuery)
+        );
+
+        const departmentSnapshot = await getDocs(departmentQuery);
+        departmentSnapshot.forEach((doc) => {
+            if (!results.some((b) => b.id === doc.id)) {
+                results.push({ id: doc.id, ...doc.data() });
+            }
+        });
     
     //debugging
     console.log(`✅ Final Results: ${results.length}`);
     //return array of matched buildings
     return results;
+
+
 
     
 };
