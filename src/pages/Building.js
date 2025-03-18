@@ -27,6 +27,9 @@ const Building = () => {
     //boolean to check if dropdown should be shown****
     const [showDropdown, setShowDropdown] = useState(false);
 
+    //dropdown for departments 
+    const [expandedDepartment, setExpandedDepartment] = useState(null);
+
     //state to store user's location
     const [userLocation, setUserLocation] = useState(null);
     const [locationError, setLocationError] = useState(null);
@@ -37,6 +40,20 @@ const Building = () => {
     const [distance, setDistance] = useState(null);
     const [duration, setDuration] = useState(null);
     const [showTravelDropdown, setShowTravelDropdown] = useState(false); // Controls dropdown visibility
+
+    // Callback function to handle route calculation & update distance & duration once route is calculated
+    const handleRouteCalculated = useCallback((data) => { {/*callback function doesn't get recal unless travelMode change */}
+    setDistance((prev) => ({
+        //keep previous distance for other travel modes & update to selected one 
+        ...prev,
+        [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.distance, //data from Google Maps Directions API
+    }));
+    setDuration((prev) => ({
+        //keep previous duration for other travel modes & update to selected one
+        ...prev,
+        [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.duration,//toLowerCase() to match travelMode state
+    }));
+}, [travelMode]);
 
     //when id changes, fetch building data from firestore
     useEffect(() => {
@@ -67,6 +84,7 @@ const Building = () => {
         fetchBuilding();
     }, [id]); //run whenever id changes
 
+    
       // Request user location when component mounts
       useEffect(() => {
         //geolocation api to get user's location allowed in browser
@@ -99,7 +117,14 @@ const Building = () => {
         } else {
             setLocationError("⚠️ Geolocation is not supported by this browser.");
         }
-    }, [userLocation]); //empty array to run only once when component mounts
+    }, []); //empty array to run only once when component mounts
+
+    // Function to toggle department dropdown visibility
+    const toggleDepartment = (index) => {
+        setExpandedDepartment(expandedDepartment === index ? null : index);
+    };
+
+    
 
 
     // handles search form submission
@@ -129,19 +154,7 @@ const Building = () => {
         setShowTravelDropdown(false); // Close dropdown after selection
     };
 
-     // Callback function to handle route calculation & update distance & duration once route is calculated
-     const handleRouteCalculated = useCallback((data) => { {/*callback function doesn't get recal unless travelMode change */}
-        setDistance((prev) => ({
-            //keep previous distance for other travel modes & update to selected one 
-            ...prev,
-            [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.distance, //data from Google Maps Directions API
-        }));
-        setDuration((prev) => ({
-            //keep previous duration for other travel modes & update to selected one
-            ...prev,
-            [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.duration,//toLowerCase() to match travelMode state
-        }));
-    }, [travelMode]);
+     
 
     // Open Google Maps with travel route selected, destination, and user location 
     const openGoogleMaps = () => {
@@ -281,6 +294,7 @@ const Building = () => {
                                 </ul>
                             </>
                         )}
+                        
 
                         {building?.services_offered && (
                             <>
@@ -290,6 +304,82 @@ const Building = () => {
                                 </ul>
                             </>
                         )}
+
+                        {building?.departments && (
+                            <>
+                                <p className="font-bold text-lg">🏢 Departments:</p>
+                                <ul className="list-none ml-6">
+                                    {building.departments.map((department, index) => (
+                                        <li key={index} className="mb-4">
+                                            <button
+                                                onClick={() => toggleDepartment(index)}
+                                                className="w-full text-left bg-white text-navy px-6 py-4 rounded-lg shadow-md hover:bg-gray-200 transition-all border border-gray-300"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-semibold">{department.name}</span>
+                                                    <span className="text-sm text-gray-600">{department.floor}</span>
+                                                </div>
+                                            </button>
+                                            {expandedDepartment === index && (
+                                                <div className="ml-6 mt-4 p-4 bg-white text-black rounded-lg border border-gray-200 shadow-md">
+                                                {department.image && (
+                                                    <img src={department.image} alt={department.name} className="w-full h-32 object-cover rounded-lg mb-4" />
+                                                )}
+                                                {/* Department Description */}
+                                                {department.description && (
+                                                        <p className="text-gray-800 mb-4">{department.description}</p>
+                                                    )}
+                                                {/* Department Contact */}
+                                                <p className="font-bold text-black flex items-center">
+                                                    📞 Phone: <span className="ml-2 text-gray-800">{department.contact.phone}</span>
+                                                </p>
+                                                <p className="font-bold text-black flex items-center">
+                                                    📧 Email: <span className="ml-2 text-gray-800">{department.contact.email}</span>
+                                                </p>
+                                                {/* Operating Hours */}
+                                                {department.operating_hours && (
+                                                    <div className="mt-4">
+                                                        <p className="font-bold text-black flex items-center">🕒 Operating Hours:</p>
+                                                        <ul className="list-disc ml-6 text-gray-900 ">
+                                                            {Object.entries(department.operating_hours.regular).map(([day, hours], idx) => (
+                                                                <li key={idx}><span className="font-semibold">{day}:</span> {hours}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                                {/* Department Services */}
+                                                <p className="font-bold text-black">🛠️ Services:</p>
+                                                <ul className="list-disc ml-6 text-gray-900">
+                                                    {department.services.map((service, idx) => (
+                                                        <li key={idx}>{service}</li>
+                                                    ))}
+                                                </ul>
+
+                                                {/* Pricing Section (Only for Dining Hall) */}
+{department?.pricing && typeof department.pricing === "object" && Object.keys(department.pricing).length > 0 ? (
+    <>
+        <p className="font-bold text-black mt-4">💲 Pricing:</p>
+        <ul className="list-disc ml-6 text-gray-900">
+            {Object.entries(department.pricing).map(([meal, price], idx) => (
+                <li key={idx}>{meal}: {price}</li>
+            ))}
+        </ul>
+    </>
+) : (
+    <p className="text-gray-500 mt-4">Pricing information is not available.</p>
+)}
+
+
+
+                                                
+                                            </div>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+
                         {/*display error message if location access is blocked*/}
                         {locationError && <p className="text-red-400">{locationError}</p>}
                     </div>
