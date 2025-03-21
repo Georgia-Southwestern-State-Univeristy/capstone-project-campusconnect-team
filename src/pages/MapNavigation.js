@@ -6,7 +6,7 @@ import '../pages/App.css'; // path to import css file for map styling
 console.log("MapNavigation re-rendered"); //debugging log to see if component re-renders
 
 /**
- * Debounce function to delay execution of a function by a specified time.
+ * (Solution)!!! Debounce function to delay execution of a function by a specified time.
  * helps in reducing excessive API calls.
  * {Function} func - The function to be debounced.
  * @{number} wait - The delay time in milliseconds.

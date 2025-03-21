@@ -26,6 +26,10 @@ const Building = () => {
     const [searchResults, setSearchResults] = useState([]);
     //boolean to check if dropdown should be shown****
     const [showDropdown, setShowDropdown] = useState(false);
+    const [aiResponse, setAiResponse] = useState(""); // Store AI response
+
+    //dropdown for departments 
+    const [expandedDepartment, setExpandedDepartment] = useState(null);
 
     //state to store user's location
     const [userLocation, setUserLocation] = useState(null);
@@ -37,6 +41,69 @@ const Building = () => {
     const [distance, setDistance] = useState(null);
     const [duration, setDuration] = useState(null);
     const [showTravelDropdown, setShowTravelDropdown] = useState(false); // Controls dropdown visibility
+
+    // state var to track current image index
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    // When the building id changes, reset the slideshow to the first image
+    useEffect(() => {
+        setCurrentSlide(0);
+    }, [id]);
+  
+    /**
+     * Automatically moves to the next slide every 5 seconds.
+     * - Ensures slideshow continues running on its own.
+     * - Stops when the component unmounts to prevent memory leaks.
+    */
+    useEffect(() => {
+        //check if building exists and has valid images array
+        if (building && building.building_image && Array.isArray(building.building_image) && building.building_image.length > 0) {
+            //set interval to change slide every 5 seconds
+            const interval = setInterval(() => {
+                //update 'currentSlide' to the next image index, looping back to the start
+                setCurrentSlide((prev) => (prev + 1) % building.building_image.length);
+            }, 5000); // Change slide every 5 seconds
+
+            /**
+             * Cleanup function:
+             * - Clears the interval when the component unmounts or `building` changes.
+             * - Prevents multiple intervals from stacking up (avoids memory leaks).
+            */
+            return () => clearInterval(interval); 
+        }
+    }, [building]); // Add dependency on 'building' - Re-run effect when `building` changes (e.g., user navigates to a new building).
+
+
+
+    // Function to move to next slide (check for valid images)
+    const nextSlide = () => {
+        if (building?.building_image && Array.isArray(building.building_image)) {
+            //increment 'currentSlide' to the next image index by 1, looping back to the start
+            setCurrentSlide((prev) => (prev + 1) % building.building_image.length);
+        }
+    };
+
+    // Function to move to previous slide (check for valid images)
+    const prevSlide = () => {
+        if (building?.building_image && Array.isArray(building.building_image)) {
+            //decrement 'currentSlide' to the previous image index by 1, looping back to the end
+            setCurrentSlide((prev) => (prev - 1 + building.building_image.length) % building.building_image.length);
+        }
+    };
+
+    // Callback function to handle route calculation & update distance & duration once route is calculated
+    const handleRouteCalculated = useCallback((data) => { {/*callback function doesn't get recal unless travelMode change */}
+    setDistance((prev) => ({
+        //keep previous distance for other travel modes & update to selected one 
+        ...prev,
+        [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.distance, //data from Google Maps Directions API
+    }));
+    setDuration((prev) => ({
+        //keep previous duration for other travel modes & update to selected one
+        ...prev,
+        [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.duration,//toLowerCase() to match travelMode state
+    }));
+}, [travelMode]);
 
     //when id changes, fetch building data from firestore
     useEffect(() => {
@@ -67,6 +134,7 @@ const Building = () => {
         fetchBuilding();
     }, [id]); //run whenever id changes
 
+    
       // Request user location when component mounts
       useEffect(() => {
         //geolocation api to get user's location allowed in browser
@@ -99,7 +167,14 @@ const Building = () => {
         } else {
             setLocationError("⚠️ Geolocation is not supported by this browser.");
         }
-    }, [userLocation]); //empty array to run only once when component mounts
+    }, []); //empty array to run only once when component mounts
+
+    // Function to toggle department dropdown visibility
+    const toggleDepartment = (index) => {
+        setExpandedDepartment(expandedDepartment === index ? null : index);
+    };
+
+    
 
 
     // handles search form submission
@@ -111,14 +186,15 @@ const Building = () => {
 
         //call searchBuildings function to get search results
         const results = await searchBuildings(query);
-        setSearchResults(results);
-        //show dropdown  working **
-        setShowDropdown(true);
-
-        //if only one result, navigate to that building
-        if (results.length === 1) {
-            navigate(`/building/${results[0].id}`);
-            setShowDropdown(false); // Close dropdown after navigation
+        
+        // Check if the first result is an AI-generated response
+        if (results.length === 1 && results[0].id === "ai-response") {
+            setAiResponse(results[0].relevant_info);
+            setShowDropdown(false); // Hide dropdown if AI response is shown
+        } else {
+            setSearchResults(results);
+            setAiResponse(""); // Reset AI response if results are from buildings
+            setShowDropdown(results.length > 0);
         }
     };
 
@@ -129,19 +205,7 @@ const Building = () => {
         setShowTravelDropdown(false); // Close dropdown after selection
     };
 
-     // Callback function to handle route calculation & update distance & duration once route is calculated
-     const handleRouteCalculated = useCallback((data) => { {/*callback function doesn't get recal unless travelMode change */}
-        setDistance((prev) => ({
-            //keep previous distance for other travel modes & update to selected one 
-            ...prev,
-            [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.distance, //data from Google Maps Directions API
-        }));
-        setDuration((prev) => ({
-            //keep previous duration for other travel modes & update to selected one
-            ...prev,
-            [travelMode.toLowerCase()]: data[travelMode.toLowerCase()]?.duration,//toLowerCase() to match travelMode state
-        }));
-    }, [travelMode]);
+     
 
     // Open Google Maps with travel route selected, destination, and user location 
     const openGoogleMaps = () => {
@@ -158,7 +222,6 @@ const Building = () => {
     };
 
 
-    
 
     //while loading, show loading message, else if no building found, show error message
     if (loading) {
@@ -208,8 +271,16 @@ const Building = () => {
                         </button>
                     </form>
 
+                    {/* Display AI-generated response if available */}
+                    {aiResponse && (
+                        <div className="mt-4 w-full max-w-lg bg-white text-black rounded-lg shadow-lg p-3">
+                            <p className="text-center font-semibold text-gray-700">AI Response:</p>
+                            <p className="text-center text-gray-900">{aiResponse}</p>
+                        </div>
+                    )}
+
                     {/* DROPDOWN RESULTS -  working****/}
-                    {showDropdown && searchResults.length > 1 && ( //when true and more than 1 result 
+                    {showDropdown && searchResults.length > 0 && !aiResponse && ( //when true, more than 0 result, and not an AI response 
                         <div className="absolute bg-white text-black w-full rounded-md shadow-lg mt-2 z-50">
                             <ul>
                                 {/*map through search results and display them + change color when hovered*/} 
@@ -218,6 +289,9 @@ const Building = () => {
                                     <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2"  onClick={() => setShowDropdown(false)}>  {/*each result is a link to the building page */}
                                         <Link to={`/building/${building.id}`}>
                                             {building.building_name}
+                                            {building.relevant_info && (
+                                                <p className="mt-2 text-sm text-gray-600">{building.relevant_info}</p>
+                                            )}
                                         </Link>
                                     </li>
                                 ))}
@@ -238,10 +312,64 @@ const Building = () => {
 
             <div className="flex h-screen">
                 <div className="w-1/2 bg-navy text-white p-10 overflow-y-auto">
-                    {/* Building Details */}
-                    {building?.building_image && (
-                        <img src={building.building_image} alt={building.building_name} className="w-full h-64 object-cover rounded-lg mb-4" />
-                    )}
+                {/* Building Details */}
+                   {/* Image Slideshow */}
+                    {building?.building_image && Array.isArray(building.building_image) && building.building_image.length > 0 ? (
+                        <div className="relative w-full h-64 overflow-hidden rounded-lg">
+                            {/* Image Display of current slide */}
+                                <img
+                                    src={building.building_image[currentSlide]} //dynamically update image source based on currentSlide index
+                                    alt={`Slide ${currentSlide}`} //accessibility text
+                                    className="w-full h-64 object-cover transition-opacity duration-700 ease-in-out"//smooth transition effect for image change
+                                />
+
+                                {/* Left Arrow (SVG Icons for Better UI) */}
+                                <button 
+                                    onClick={prevSlide} //call function decreasing currentSlide index
+                                    //positioning and styling for the button on left side, vertically centered w/ semi-transparent background & hover effect
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-80 transition"
+                                >
+                                    {/* SVG Icon for Left Arrow */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        {/*left arrow path with rounded ends and stroke width of 2 */}
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+
+                                {/* Right Arrow button - next slides */}
+                                <button 
+                                    onClick={nextSlide} //call function increasing currentSlide index
+                                    //positioning and styling for the button on right side, vertically centered w/ semi-transparent background & hover effect 
+                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-80 transition"
+                                >
+                                    {/* SVG Icon for Right Arrow */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+
+                                {/* Pagination Dots - which slide is active */}
+                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                                    {/*map through building images and create a dot for each image, highlight the current slide */}
+                                    {building.building_image.map((_, index) => (
+                                        <span 
+                                            key={index} //assign unique key to each dot
+                                            //highlight active dot based on currentSlide index, scale it up for emphasis
+                                            className={`h-3 w-3 rounded-full transition-all duration-300 
+                                            ${index === currentSlide ? 'bg-gold scale-110' : 'bg-gray-400'}`} //other slides are gray, active slide is gold
+                                        ></span>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            //no image available, show placeholder message
+                            <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-lg">
+                                <span className="text-gray-600">No Image Available</span>
+                            </div>
+                        )}
+
+
+
                     {/* Building Name & description*/}
                     <h1 className="text-5xl font-bold">{building.building_name}</h1>
                     <p className="text-lg mt-4">{building.description}</p>
@@ -281,6 +409,7 @@ const Building = () => {
                                 </ul>
                             </>
                         )}
+                        
 
                         {building?.services_offered && (
                             <>
@@ -290,6 +419,82 @@ const Building = () => {
                                 </ul>
                             </>
                         )}
+
+                        {building?.departments && (
+                            <>
+                                <p className="font-bold text-lg">🏢 Departments:</p>
+                                <ul className="list-none ml-6">
+                                    {building.departments.map((department, index) => (
+                                        <li key={index} className="mb-4">
+                                            <button
+                                                onClick={() => toggleDepartment(index)}
+                                                className="w-full text-left bg-white text-navy px-6 py-4 rounded-lg shadow-md hover:bg-gray-200 transition-all border border-gray-300"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className="font-semibold">{department.name}</span>
+                                                    <span className="text-sm text-gray-600">{department.floor}</span>
+                                                </div>
+                                            </button>
+                                            {expandedDepartment === index && (
+                                                <div className="ml-6 mt-4 p-4 bg-white text-black rounded-lg border border-gray-200 shadow-md">
+                                                {department.image && (
+                                                    <img src={department.image} alt={department.name} className="w-full h-32 object-cover rounded-lg mb-4" />
+                                                )}
+                                                {/* Department Description */}
+                                                {department.description && (
+                                                        <p className="text-gray-800 mb-4">{department.description}</p>
+                                                    )}
+                                                {/* Department Contact */}
+                                                <p className="font-bold text-black flex items-center">
+                                                    📞 Phone: <span className="ml-2 text-gray-800">{department.contact.phone}</span>
+                                                </p>
+                                                <p className="font-bold text-black flex items-center">
+                                                    📧 Email: <span className="ml-2 text-gray-800">{department.contact.email}</span>
+                                                </p>
+                                                {/* Operating Hours */}
+                                                {department.operating_hours && (
+                                                    <div className="mt-4">
+                                                        <p className="font-bold text-black flex items-center">🕒 Operating Hours:</p>
+                                                        <ul className="list-disc ml-6 text-gray-900 ">
+                                                            {Object.entries(department.operating_hours.regular).map(([day, hours], idx) => (
+                                                                <li key={idx}><span className="font-semibold">{day}:</span> {hours}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                                {/* Department Services */}
+                                                <p className="font-bold text-black">🛠️ Services:</p>
+                                                <ul className="list-disc ml-6 text-gray-900">
+                                                    {department.services.map((service, idx) => (
+                                                        <li key={idx}>{service}</li>
+                                                    ))}
+                                                </ul>
+
+                                                {/* Pricing Section (Only for Dining Hall) */}
+                                                {department?.pricing && typeof department.pricing === "object" && Object.keys(department.pricing).length > 0 ? (
+                                                    <>
+                                                        <p className="font-bold text-black mt-4">💲 Pricing:</p>
+                                                        <ul className="list-disc ml-6 text-gray-900">
+                                                            {Object.entries(department.pricing).map(([meal, price], idx) => (
+                                                                <li key={idx}>{meal}: {price}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </>
+                                                ) : (
+                                                    <p className="text-gray-500 mt-4">Pricing information is not available.</p>
+                                                )}
+
+
+
+                                                
+                                            </div>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        )}
+
                         {/*display error message if location access is blocked*/}
                         {locationError && <p className="text-red-400">{locationError}</p>}
                     </div>
