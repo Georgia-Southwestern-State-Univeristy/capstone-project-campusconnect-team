@@ -26,6 +26,7 @@ const Building = () => {
     const [searchResults, setSearchResults] = useState([]);
     //boolean to check if dropdown should be shown****
     const [showDropdown, setShowDropdown] = useState(false);
+    const [aiResponse, setAiResponse] = useState(""); // Store AI response
 
     //dropdown for departments 
     const [expandedDepartment, setExpandedDepartment] = useState(null);
@@ -185,14 +186,15 @@ const Building = () => {
 
         //call searchBuildings function to get search results
         const results = await searchBuildings(query);
-        setSearchResults(results);
-        //show dropdown  working **
-        setShowDropdown(true);
-
-        //if only one result, navigate to that building
-        if (results.length === 1) {
-            navigate(`/building/${results[0].id}`);
-            setShowDropdown(false); // Close dropdown after navigation
+        
+        // Check if the first result is an AI-generated response
+        if (results.length === 1 && results[0].id === "ai-response") {
+            setAiResponse(results[0].relevant_info);
+            setShowDropdown(false); // Hide dropdown if AI response is shown
+        } else {
+            setSearchResults(results);
+            setAiResponse(""); // Reset AI response if results are from buildings
+            setShowDropdown(results.length > 0);
         }
     };
 
@@ -269,8 +271,16 @@ const Building = () => {
                         </button>
                     </form>
 
+                    {/* Display AI-generated response if available */}
+                    {aiResponse && (
+                        <div className="mt-4 w-full max-w-lg bg-white text-black rounded-lg shadow-lg p-3">
+                            <p className="text-center font-semibold text-gray-700">AI Response:</p>
+                            <p className="text-center text-gray-900">{aiResponse}</p>
+                        </div>
+                    )}
+
                     {/* DROPDOWN RESULTS -  working****/}
-                    {showDropdown && searchResults.length > 1 && ( //when true and more than 1 result 
+                    {showDropdown && searchResults.length > 0 && !aiResponse && ( //when true, more than 0 result, and not an AI response 
                         <div className="absolute bg-white text-black w-full rounded-md shadow-lg mt-2 z-50">
                             <ul>
                                 {/*map through search results and display them + change color when hovered*/} 
@@ -279,6 +289,9 @@ const Building = () => {
                                     <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2"  onClick={() => setShowDropdown(false)}>  {/*each result is a link to the building page */}
                                         <Link to={`/building/${building.id}`}>
                                             {building.building_name}
+                                            {building.relevant_info && (
+                                                <p className="mt-2 text-sm text-gray-600">{building.relevant_info}</p>
+                                            )}
                                         </Link>
                                     </li>
                                 ))}
