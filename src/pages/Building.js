@@ -41,6 +41,55 @@ const Building = () => {
     const [duration, setDuration] = useState(null);
     const [showTravelDropdown, setShowTravelDropdown] = useState(false); // Controls dropdown visibility
 
+    // state var to track current image index
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    // When the building id changes, reset the slideshow to the first image
+    useEffect(() => {
+        setCurrentSlide(0);
+    }, [id]);
+  
+    /**
+     * Automatically moves to the next slide every 5 seconds.
+     * - Ensures slideshow continues running on its own.
+     * - Stops when the component unmounts to prevent memory leaks.
+    */
+    useEffect(() => {
+        //check if building exists and has valid images array
+        if (building && building.building_image && Array.isArray(building.building_image) && building.building_image.length > 0) {
+            //set interval to change slide every 5 seconds
+            const interval = setInterval(() => {
+                //update 'currentSlide' to the next image index, looping back to the start
+                setCurrentSlide((prev) => (prev + 1) % building.building_image.length);
+            }, 5000); // Change slide every 5 seconds
+
+            /**
+             * Cleanup function:
+             * - Clears the interval when the component unmounts or `building` changes.
+             * - Prevents multiple intervals from stacking up (avoids memory leaks).
+            */
+            return () => clearInterval(interval); 
+        }
+    }, [building]); // Add dependency on 'building' - Re-run effect when `building` changes (e.g., user navigates to a new building).
+
+
+
+    // Function to move to next slide (check for valid images)
+    const nextSlide = () => {
+        if (building?.building_image && Array.isArray(building.building_image)) {
+            //increment 'currentSlide' to the next image index by 1, looping back to the start
+            setCurrentSlide((prev) => (prev + 1) % building.building_image.length);
+        }
+    };
+
+    // Function to move to previous slide (check for valid images)
+    const prevSlide = () => {
+        if (building?.building_image && Array.isArray(building.building_image)) {
+            //decrement 'currentSlide' to the previous image index by 1, looping back to the end
+            setCurrentSlide((prev) => (prev - 1 + building.building_image.length) % building.building_image.length);
+        }
+    };
+
     // Callback function to handle route calculation & update distance & duration once route is calculated
     const handleRouteCalculated = useCallback((data) => { {/*callback function doesn't get recal unless travelMode change */}
     setDistance((prev) => ({
@@ -171,7 +220,6 @@ const Building = () => {
     };
 
 
-    
 
     //while loading, show loading message, else if no building found, show error message
     if (loading) {
@@ -251,10 +299,64 @@ const Building = () => {
 
             <div className="flex h-screen">
                 <div className="w-1/2 bg-navy text-white p-10 overflow-y-auto">
-                    {/* Building Details */}
-                    {building?.building_image && (
-                        <img src={building.building_image} alt={building.building_name} className="w-full h-64 object-cover rounded-lg mb-4" />
-                    )}
+                {/* Building Details */}
+                   {/* Image Slideshow */}
+                    {building?.building_image && Array.isArray(building.building_image) && building.building_image.length > 0 ? (
+                        <div className="relative w-full h-64 overflow-hidden rounded-lg">
+                            {/* Image Display of current slide */}
+                                <img
+                                    src={building.building_image[currentSlide]} //dynamically update image source based on currentSlide index
+                                    alt={`Slide ${currentSlide}`} //accessibility text
+                                    className="w-full h-64 object-cover transition-opacity duration-700 ease-in-out"//smooth transition effect for image change
+                                />
+
+                                {/* Left Arrow (SVG Icons for Better UI) */}
+                                <button 
+                                    onClick={prevSlide} //call function decreasing currentSlide index
+                                    //positioning and styling for the button on left side, vertically centered w/ semi-transparent background & hover effect
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-80 transition"
+                                >
+                                    {/* SVG Icon for Left Arrow */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        {/*left arrow path with rounded ends and stroke width of 2 */}
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+
+                                {/* Right Arrow button - next slides */}
+                                <button 
+                                    onClick={nextSlide} //call function increasing currentSlide index
+                                    //positioning and styling for the button on right side, vertically centered w/ semi-transparent background & hover effect 
+                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-80 transition"
+                                >
+                                    {/* SVG Icon for Right Arrow */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+
+                                {/* Pagination Dots - which slide is active */}
+                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                                    {/*map through building images and create a dot for each image, highlight the current slide */}
+                                    {building.building_image.map((_, index) => (
+                                        <span 
+                                            key={index} //assign unique key to each dot
+                                            //highlight active dot based on currentSlide index, scale it up for emphasis
+                                            className={`h-3 w-3 rounded-full transition-all duration-300 
+                                            ${index === currentSlide ? 'bg-gold scale-110' : 'bg-gray-400'}`} //other slides are gray, active slide is gold
+                                        ></span>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            //no image available, show placeholder message
+                            <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-lg">
+                                <span className="text-gray-600">No Image Available</span>
+                            </div>
+                        )}
+
+
+
                     {/* Building Name & description*/}
                     <h1 className="text-5xl font-bold">{building.building_name}</h1>
                     <p className="text-lg mt-4">{building.description}</p>
@@ -356,18 +458,18 @@ const Building = () => {
                                                 </ul>
 
                                                 {/* Pricing Section (Only for Dining Hall) */}
-{department?.pricing && typeof department.pricing === "object" && Object.keys(department.pricing).length > 0 ? (
-    <>
-        <p className="font-bold text-black mt-4">💲 Pricing:</p>
-        <ul className="list-disc ml-6 text-gray-900">
-            {Object.entries(department.pricing).map(([meal, price], idx) => (
-                <li key={idx}>{meal}: {price}</li>
-            ))}
-        </ul>
-    </>
-) : (
-    <p className="text-gray-500 mt-4">Pricing information is not available.</p>
-)}
+                                                {department?.pricing && typeof department.pricing === "object" && Object.keys(department.pricing).length > 0 ? (
+                                                    <>
+                                                        <p className="font-bold text-black mt-4">💲 Pricing:</p>
+                                                        <ul className="list-disc ml-6 text-gray-900">
+                                                            {Object.entries(department.pricing).map(([meal, price], idx) => (
+                                                                <li key={idx}>{meal}: {price}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </>
+                                                ) : (
+                                                    <p className="text-gray-500 mt-4">Pricing information is not available.</p>
+                                                )}
 
 
 
