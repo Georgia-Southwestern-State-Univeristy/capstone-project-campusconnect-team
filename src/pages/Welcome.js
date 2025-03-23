@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { searchBuildings } from "../services/firestoreSearchService";
-import Chatbot from "./chatbox";
 
 const Welcome = () => {
     // State to store the search query input
     const [query, setQuery] = useState("");
     // State to store search results from Firestore
     const [results, setResults] = useState([]);
+
+    const [aiResponse, setAiResponse] = useState(""); // Store AI response
+    const [loading, setLoading] = useState(false);
+    const [isLocationQuery, setIsLocationQuery] = useState(false); // New state for location query
+
     // Hook for programmatic navigation
     const navigate = useNavigate();
 
@@ -16,13 +20,34 @@ const Welcome = () => {
         event.preventDefault();// Prevents default form submission behavior
         // If the search query is empty, do nothing
         if (query.trim() === "") return;
+
+        setLoading(true);
+        setAiResponse(""); // Clear previous AI response
+
         //Calls Firestore service to fetch matching buildings
         const buildings = await searchBuildings(query);
+        setLoading(false);
         setResults(buildings);// Updates state with search results
 
+        const aiGeneratedResponse = buildings.find((b) => b.id === "ai-response");
+
+        if (aiGeneratedResponse) {
+            setAiResponse(aiGeneratedResponse.relevant_info);
+            setIsLocationQuery(false); // AI response means it's not a location query
+            return; // Don't navigate if it's an AI-generated answer
+        }
+
+        if (buildings.length > 0) {
+            setIsLocationQuery(buildings[0].isLocationQuery); // Set location query flag
+        }
+
         // If only one result, navigate immediately
-        if (buildings.length === 1) {
-            navigate(`/building/${buildings[0].id}`);
+        if (buildings.length === 1 && buildings[0].id !== "ai-response") {
+            if (buildings[0].isLocationQuery) {
+                setIsLocationQuery(true); // Ensure dropdown is shown for locations
+            } else {
+                navigate(`/building/${buildings[0].id}`);
+            }
         }
     };
 
@@ -58,17 +83,32 @@ const Welcome = () => {
                     </button>
                 </form>
 
+                {/* Display AI-generated response if available */}
+                {aiResponse && (
+                <div className="mt-4 w-full max-w-lg bg-white text-black rounded-lg shadow-lg p-3">
+                    <p className="text-center font-semibold text-gray-700">AI Response:</p>
+                    <p className="text-center text-gray-900">{aiResponse}</p>
+                </div>
+                )}
+
+                {/* Loading message */}
+                {loading && <div className="mt-4 text-white">Loading results...</div>}
+
                 {/* DISPLAY SEARCH RESULTS BELOW - Not working****/}
-                {results.length > 1 && (
-                    <div className="mt-4 w-full max-w-lg bg-white text-black rounded-lg shadow-lg p-3">
+                {results.length > 0 && !loading && !aiResponse && (
+                    <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
                         <p className="text-center font-semibold text-gray-700">Select a location:</p>
                         <ul>
-                            {results.map((building) => (
-                                <li key={building.id} className="cursor-pointer px-4 py-2 hover:bg-gray-200 rounded">
+                            {results.map((b) => (
+                                <li key={b.id} className="cursor-pointer px-4 py-2 hover:bg-gray-200 rounded">
                                     {/* Clickable search results redirecting to building pages */}
-                                <Link to={`/building/${building.id}`}> {/*allows client-side routing w/o page reload + adds building id to url */}
-                                    {building.building_name}
+                                <Link to={`/building/${b.id}`}> {/*allows client-side routing w/o page reload + adds building id to url */}
+                                    {b.building_name}
                                     {/*EX: <a href="/building/library123">University Library</a>*/}
+                                    {/* Displaying the derived answer */}
+                                    {b.relevant_info && (
+                                        <p className="mt-2 text-sm text-gray-600">{b.relevant_info}</p>
+                                    )}
                                 </Link>
                             </li>
                             ))}
@@ -92,8 +132,6 @@ const Welcome = () => {
                     </div>
                 )}
             </div>
-            {/* Include the Chatbot component */}
-            <Chatbot />
         </div>
     );
 };
