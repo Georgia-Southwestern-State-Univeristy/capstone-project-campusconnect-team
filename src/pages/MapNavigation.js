@@ -39,6 +39,23 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
     // Timeout reference for debouncing API calls (cache routes to avoid making redundant API calls)
     const routeCache = useRef({});
 
+    //Control when to hide loading overlay
+    const [mapLoaded, setMapLoaded] = useState(false); // NEW: Track loading state
+
+    // new refs to track map loading state
+    //mapTilesLoadedRef tracks if map tiles are loaded
+    //routeDrawnRef tracks if route is drawn
+    const mapTilesLoadedRef = useRef(false);
+    const routeDrawnRef = useRef(false);
+
+    //function to check if map is fully loaded then show map 
+    const checkIfMapIsFullyReady = () => {
+        if (mapTilesLoadedRef.current && routeDrawnRef.current) {
+          setMapLoaded(true); //map ready? remove loader 
+        }
+      };
+
+
     //initalize map & directions services only once 
     useEffect(() => {
         console.log("Initializing map...");
@@ -48,6 +65,11 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
             return;
         }
 
+        //Reset all flags so overlay shows from the start
+        setMapLoaded(false);
+        mapTilesLoadedRef.current = false;
+        routeDrawnRef.current = false;
+
         //make & store map instance if not yet initialized 
         if (!mapInstanceRef.current) {
             mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
@@ -55,6 +77,13 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
                 center: userLocation || destination, //center map on userLocation or destination
                 disableDefaultUI: false, // Prevents UI flickering -> disable default controls
             });
+
+        // detects when the map has fully loaded (tiles rendered)
+        mapInstanceRef.current.addListener("tilesloaded", () => {
+            console.log("✅ Map tiles loaded");
+            mapTilesLoadedRef.current = true;
+            checkIfMapIsFullyReady(); //combine w/ route status 
+          });    
 
          //debugging log to see if map is initialized   
         console.log("Map initialized:", mapInstanceRef.current);
@@ -140,6 +169,16 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
             }
 
             console.log("📍 Calculating route...");
+
+            // //Reset loading indicators before route starts
+            // setMapLoaded(false);          
+            // mapTilesLoadedRef.current = false;
+            // routeDrawnRef.current = false;
+
+            // ✅ Reset loader on route start
+            setMapLoaded(false);
+            routeDrawnRef.current = false;
+
             //direct route rquest parameters 
             const request = {
                 origin: userLocation, //start location
@@ -147,10 +186,18 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
                 travelMode: window.google.maps.TravelMode[travelMode], //travel mode
             };
 
+    
+
             //request route calculation from Google Maps API
             directionsServiceRef.current.route(request, (result, status) => {
                 if (status === window.google.maps.DirectionsStatus.OK) {
                     directionsRendererRef.current.setDirections(result); //display calculated route
+                    console.log("✅ Route drawn");
+
+                    //update loading indicators
+                    routeDrawnRef.current = true;
+                    checkIfMapIsFullyReady(); //show map if both are done 
+
                     routeCache.current[cacheKey] = result; //store route in cache
 
                     // Extract distance and duration
@@ -190,8 +237,24 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
     }, [destination, travelMode, debouncedCalculateRoute]); //run only when destination or travel mode changes
 
     //render map container 
-    return <div ref={mapRef} className="map-container" />;
+    return( 
+        <div className="relative w-full h-full">
+            {/* Show loading overlay if map isn't ready */}
+            {!mapLoaded && (
+                <div className="absolute inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
+                <span className="mr-2">Loading route</span>
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gold rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gold rounded-full animate-bounce delay-150"></div>
+                  <div className="w-2 h-2 bg-gold rounded-full animate-bounce delay-300"></div>
+                </div>
+              </div>
+            )}
+
+            {/* Actual map container */}
+            <div ref={mapRef} className="map-container h-full" />
+        </div>);
     
-};
+    };
 
 export default MapNavigation;
