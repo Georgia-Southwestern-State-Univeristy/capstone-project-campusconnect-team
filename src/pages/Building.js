@@ -1,7 +1,7 @@
 //imports React and React DOM to render the app
 import React, { useEffect, useState, useCallback} from "react"; //react hooks to fetch building data & handle dynamic states 
 //param to get building id from URL, useNavigate to get to other pages, Link to navigate without page reloads
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, NavLink,Link, useNavigate } from "react-router-dom";
 //imports firebase db (instance), doc, getDoc to fetch building data
 import { db } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -305,7 +305,7 @@ const Building = () => {
                 <div className="space-x-6 text-navy font-medium">
                     {/*each link from react-router-dom*/}
                     <Link to="/" className="hover:underline">Home</Link>
-                    <Link to="/about" className="hover:underline">About</Link>
+                    <NavLink to="/about" className={({ isActive }) => isActive ? "underline font-bold text-gold" : "hover:underline"}> About </NavLink>
                     <Link to="/contact" className="hover:underline">Contact</Link>
                 </div>
             </nav>
@@ -376,30 +376,7 @@ const Building = () => {
 
                     
                     {/* Additional Details */}
-                    <div className="mt-6">
-                        {/*renders only if building.phone_num exists in firebase*/}
-                        {building?.phone_num && (
-                            <>
-                                <p className="font-bold text-lg">📞 Phone:</p>
-                                {/*check if phone_num is an array, if so map through it and display each number in a list */}
-                                <ul className="list-disc ml-6">
-                                    {Array.isArray(building.phone_num) ? building.phone_num.map((phone, index) => <li key={index}>{phone}</li>) : <li>{building.phone_num}</li>}
-                                </ul>
-                            </>
-                        )}
-
-                        {/*renders only if building.email exists in firebase*/}
-                        {building?.email && (
-                            <>
-                                <p className="font-bold text-lg">📧 Email:</p>
-                                {/*check if email is an array, if so map through it and display each number in a list */}
-                                {/*if not an array, just display email + .map() help iterate & create <li> for each email */}
-                                <ul className="list-disc ml-6">
-                                    {Array.isArray(building.email) ? building.email.map((email, index) => <li key={index}>{email}</li>) : <li>{building.email}</li>}
-                                </ul>
-                            </>
-                        )}
-
+                    <div className="mt-6">                        
                         {/*renders only if building.operating_hours exists in firebase*/}
                         {building?.operating_hours && (
                             <>
@@ -438,7 +415,7 @@ const Building = () => {
                                             {expandedDepartment === index && (
                                                 <div className="ml-6 mt-4 p-4 bg-white text-black rounded-lg border border-gray-200 shadow-md">
                                                 {department.image && (
-                                                    <img src={department.image} alt={department.name} className="w-full h-32 object-cover rounded-lg mb-4" />
+                                                    <img src={department.image} alt={department.name} className="w-full max-h-64 object-cover transition-all duration-300 ease-in-out" />
                                                 )}
                                                 {/* Department Description */}
                                                 {department.description && (
@@ -471,18 +448,17 @@ const Building = () => {
                                                 </ul>
 
                                                 {/* Pricing Section (Only for Dining Hall) */}
-                                                {department?.pricing && typeof department.pricing === "object" && Object.keys(department.pricing).length > 0 ? (
-                                                    <>
-                                                        <p className="font-bold text-black mt-4">💲 Pricing:</p>
-                                                        <ul className="list-disc ml-6 text-gray-900">
-                                                            {Object.entries(department.pricing).map(([meal, price], idx) => (
-                                                                <li key={idx}>{meal}: {price}</li>
-                                                            ))}
-                                                        </ul>
-                                                    </>
-                                                ) : (
-                                                    <p className="text-gray-500 mt-4">Pricing information is not available.</p>
+                                                {department?.name === "Dining Hall, 'The Caf'" && department?.pricing && typeof department.pricing === "object" && Object.keys(department.pricing).length > 0 && (
+                                                <>
+                                                    <p className="font-bold text-black mt-4">💲 Pricing:</p>
+                                                    <ul className="list-disc ml-6 text-gray-900">
+                                                    {Object.entries(department.pricing).map(([meal, price], idx) => (
+                                                        <li key={idx}>{meal}: {price}</li>
+                                                    ))}
+                                                    </ul>
+                                                </>
                                                 )}
+
 
 
 

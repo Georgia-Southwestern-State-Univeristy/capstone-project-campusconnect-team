@@ -220,19 +220,21 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
         }, [userLocation, destination, travelMode, onRouteCalculated]);
 
         //Debounce route calculation to prevent excessive API calls
-        const debouncedCalculateRoute = debounce(calculateRoute, 300);
+        const debouncedCalculateRoute = useCallback(
+            debounce(calculateRoute, 300),
+            [calculateRoute]
+          );
+          
         //watch for changes in destination and travel mode to trigger debounced route calculation
         useEffect(() => {
     
-        if (
-            //compare current destination/travelMode with previous destination/travelMode to check if user changed destination or travel mode
-            lastRouteParams.current.destination !== destination ||
-            lastRouteParams.current.travelMode !== travelMode
-            //no need to recalculate route if destination or travel mode is same as previous
-        ) {
-            //debug log to see if user changed destination or travel mode
-            console.log("📍 User changed destination or travel mode. Recalculating route...");
-            debouncedCalculateRoute(); //trigger debounced route calculation instead of immedate execution
+            const currentParams = JSON.stringify({ destination, travelMode });
+
+            const lastParams = JSON.stringify(lastRouteParams.current);
+          
+            if (currentParams !== lastParams) {
+              console.log("📍 Route params changed. Recalculating route...");
+              debouncedCalculateRoute();
         }
     }, [destination, travelMode, debouncedCalculateRoute]); //run only when destination or travel mode changes
 
