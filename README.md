@@ -35,9 +35,9 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 ## Backend Workflow      
   * Firebase Firestore: CampusConnect uses Firestore as a real-time NoSQL database to store data related to campus buildings, including names, descriptions, operating hours, services, and geographical coordinates. The frontend (React) communicates directly with Firestore using the Firebase SDK — no backend server is required. This allows seamless and secure data retrieval in JSON format. Firestore’s real-time syncing ensures that updates, such as changes to department hours or location info, are immediately reflected in the UI without requiring a manual page refresh.
           
-  * FirestoreSearchService: handles keyword and service-based search queries.
+  * FirestoreSearchService: handles keyword, service-based search queries, and queries sent to AI for response generation and storing response in the database.
 
-  * Gemini AI via Firestore: AI-powered answers are generated through a Firestore collection (extChatHistory) that triggers external processing via Gemini. The frontend writes a user query to the collection, and when a response is generated, it’s synced back to the app in real-time using onSnapshot() listeners.
+  * Gemini AI via Firestore Extension: AI-powered answers are generated through a Firestore collection (extChatHistory) that triggers external processing via Gemini. The frontend writes a user query to the collection, and when a response is generated, it’s synced back to the app in real-time using onSnapshot() listeners.
 
 
 
@@ -68,7 +68,7 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
    * Intelligently matches keywords to buildings, services, and departments using a custom Firestore search service. Falls back to Gemini AI if no matches found.
 
 ## AI Assistant: 
-  * A chatbot and search fallback powered by Gemini. Helps users find answers using natural language, even if building names aren't known.
+  * A chatbot and search fallback powered by Gemini. Helps users find answers using natural language, even if building names aren't known. Chatbot responds to queries and guides users through location services.
  
 ## Detailed Building Information:
    * Side Bar displaying building pictures, descriptions, office hours, and contact details (phone number, email, services offered). Distance to the selected building shown in feet for driving and footsteps for walking.
@@ -85,8 +85,6 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 ## Responsive Design	Mobile-first layouts:  
    * Clean collapsible UI, smaller buttons on mobile, and adaptive components for all screen sizes.
      
-## Chatbox Support: 
-   * Always-available assistant for live help. Chatbot responds to queries and guides users through location services.
      
 ## Department & Pricing Info: 
    * Includes toggles to view internal department details. Dining hall pricing and custom formatting supported.
@@ -187,6 +185,17 @@ Run the application:
 ```sh
 npm start
 ```
+# API Documentation:
+
+## Google Maps API:
+   * In Google Cloud Console the project was opened for CampusConnect, then the API and services for the Google Maps Platform and Maps SDK for ios services were enabled. The API key for the Google Maps Platform is generated in credentials and automatically downloaded to the local device. The key was selected and web rescrictions to our ports were added for rate limit usage and unauthorized uses.
+     
+   * In Firebase the Firebase API is added through the SDK by installing:
+     ```sh
+     npm install firebase
+     ```
+     Afterwards, the Firebase is initialized with the SDK configurations (including the Firebase API Key) to connect our website to the firebase.
+
 
 # Description of Pages:
 
@@ -250,15 +259,6 @@ npm start
      - Full Map Coverage: Ensures the map fills its container using width: 100% and height: 100%.
      - Absolute Positioning: Uses position: absolute with top: 0 and left: 0 to layer the map correctly inside its wrapper.
      - Min-Height Safeguard: Applies a minimum height (400px) to prevent rendering issues where the map may appear blank due to no vertical space being allocated — especially useful for mobile views or when containers collapse.
-       
-### `chatbox.js`:
-   * A floating chatbot that assists users by combining Firestore search and Gemini AI responses to provide answers about campus resources.
-   * Features:
-     - Opens as a chat bubble in the corner of the screen.
-     - Responds to user queries about buildings, directions, services, etc.
-     - First checks Firestore for matches; if none, it defers to Gemini AI.
-     - Maintains chat history per session, styled with Tailwind.
-     - Offers clear buttons to send messages, clear history, and toggle visibility.
 
 
 ## `/src/services`:
