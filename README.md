@@ -189,7 +189,8 @@ npm start
 
 ## Google Maps API:
    * In Google Cloud Console the project was opened for CampusConnect, then the API and services for the Google Maps Platform and Maps SDK for ios services were enabled. The API key for the Google Maps Platform is generated in credentials and automatically downloaded to the local device. The key was selected and web rescrictions to our ports were added for rate limit usage and unauthorized uses.
-     
+
+## Firebase Cloud API:
    * In Firebase the Firebase API is added through the SDK by installing:
      ```sh
      npm install firebase
