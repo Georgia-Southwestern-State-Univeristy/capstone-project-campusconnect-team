@@ -123,7 +123,23 @@ const Welcome = () => {
                         {["Library", "Gym", "Cafe", "Public Safety"].map((name) => (
                             <button
                                 key={name}
-                                onClick={() => setQuery(name.toLowerCase())}// Autofill query on click
+                                onClick={async () => {
+                                    setQuery(name.toLowerCase());
+                                    const results = await searchBuildings(name.toLowerCase());
+                                
+                                    const aiGeneratedResponse = results.find((b) => b.id === "ai-response");
+                                    if (aiGeneratedResponse) {
+                                        setAiResponse(aiGeneratedResponse.relevant_info);
+                                        setResults([]);
+                                        return;
+                                    }
+                                
+                                    if (results.length === 1) {
+                                        navigate(`/building/${results[0].id}`);
+                                    } else if (results.length > 1) {
+                                        setResults(results);
+                                    }
+                                }}
                                 className="px-5 py-2 bg-gold text-white rounded-full shadow-lg hover:bg-[#B48225]"
                             >
                                 {name}
