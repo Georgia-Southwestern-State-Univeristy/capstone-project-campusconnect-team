@@ -242,7 +242,7 @@ const Building = () => {
     return (
         <div className="min-h-screen w-full overflow-x-hidden">
             {/* NAVIGATION BAR - align horizontal */}
-            <nav className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white py-4 px-6 shadow-md space-y-4 md:space-y-0 md:space-x-6">
+            <nav className="flex flex-col md:flex-row justify-center md:justify-between items-center bg-white py-4 px-6 shadow-md space-y-4 md:space-y-0 md:space-x-6 text-center">
                 {/*CampusConnect Logo -> wraps text in link from React Router to home page */}
                 <Link to="/" className="text-2xl font-bold text-gold">
                     Campus <span className="text-navy">Connect</span>
@@ -260,7 +260,7 @@ const Building = () => {
                             value={query}
                             //update query state 
                             onChange={(e) => setQuery(e.target.value)}
-                            className="flex-1 px-4 py-2 rounded-full border border-gray-300 focus:outline-none text-black w-full sm:w-72"
+                            className="flex-1 px-4 py-2 rounded-full border border-gray-300 focus:outline-none text-black w-[22rem] sm:w-[24rem] md:w-80 lg:w-96"
                         />
                         <button 
                             //form submission triggered 

@@ -53,6 +53,23 @@ const Welcome = () => {
 
     return (
         <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center justify-between bg-navy text-white px-4 py-8 sm:px-8">
+            {/* Top-right links for About and Contact */}
+            <div className="absolute top-5 right-8 z-50 space-x-8">
+            <Link
+                to="/about"
+                className="text-gold font-extrabold text-xl tracking-wide hover:underline hover:text-white transition duration-200"
+            >
+                About
+            </Link>
+            <Link
+                to="/contact"
+                className="text-gold font-extrabold text-xl tracking-wide hover:underline hover:text-white transition duration-200"
+            >
+                Contact
+            </Link>
+            </div>
+
+
             {/* Centered welcome message */}
             <div className="flex-grow flex flex-col items-center justify-center w-full text-center">
                 <h1 className="text-4xl sm:text-5xl font-extrabold">Welcome to</h1>
@@ -94,7 +111,7 @@ const Welcome = () => {
                 {/* Loading message */}
                 {loading && <div className="mt-4 text-white">Loading results...</div>}
 
-                {/* DISPLAY SEARCH RESULTS BELOW - Not working****/}
+                {/* DISPLAY SEARCH RESULTS BELOW -  working****/}
                 {results.length > 0 && !loading && !aiResponse && (
                     <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
                         <p className="text-center font-semibold text-gray-700">Select a location:</p>
