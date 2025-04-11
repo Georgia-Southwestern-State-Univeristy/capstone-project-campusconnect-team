@@ -7,7 +7,7 @@ const team = [
     role: "Project Manager",
     bio: "Organized team workflow, tested features, and assisted both frontend and backend roles.",
     email: "sdanie27@radar.gsw.edu",
-    image: "https://ui-avatars.com/api/?name=Shaylan+Daniel&background=0D8ABC&color=fff"
+    image: "/shaylan.jpeg"
   },
   {
     name: "Sophia Aparicio-Malacara",
@@ -21,7 +21,7 @@ const team = [
     role: "Backend & Firebase Developer",
     bio: "Integrated the Firestore backend and AI-driven search capabilities",
     email: "apatel19@radar.gsw.edu",
-    image: "https://ui-avatars.com/api/?name=Anjali+Patel&background=0D8ABC&color=fff"
+    image: "/anjali.jpeg"
   }
   
 ];

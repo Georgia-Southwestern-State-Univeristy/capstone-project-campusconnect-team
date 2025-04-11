@@ -52,19 +52,19 @@ const Welcome = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-between bg-navy text-white px-4">
+        <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center justify-between bg-navy text-white px-4 py-8 sm:px-8">
             {/* Centered welcome message */}
-            <div className="flex-grow flex flex-col items-center justify-center">
-                <h1 className="text-5xl font-extrabold">Welcome to</h1>
-                <h2 className="text-6xl font-extrabold text-gold mt-2">CampusConnect!</h2>
-                <p className="mt-4 text-lg text-gray-300 text-center px-6">
+            <div className="flex-grow flex flex-col items-center justify-center w-full text-center">
+                <h1 className="text-4xl sm:text-5xl font-extrabold">Welcome to</h1>
+                <h2 className="text-5xl sm:text-6xl font-extrabold text-gold mt-2 break-words">CampusConnect!</h2>
+                <p className="mt-4 text-base sm:text-lg text-gray-300 px-4 sm:px-6 max-w-md">
                     Find campus buildings quickly!
                 </p>
 
                 {/* SEARCH BAR */}
                 <form 
                     onSubmit={handleSearch} 
-                    className="mt-6 w-full max-w-lg flex items-center bg-white rounded-full shadow-md overflow-hidden"
+                    className="mt-6 w-full max-w-lg flex flex-col sm:flex-row items-stretch bg-white rounded-xl overflow-hidden shadow-md"
                 >
                     {/* Input field for search */}
                     <input 
@@ -72,12 +72,12 @@ const Welcome = () => {
                         placeholder="🔍 Search for a building or service..." 
                         value={query}
                         onChange={(e) => setQuery(e.target.value)} // Updates query state
-                        className="flex-grow px-4 py-2 text-black outline-none rounded-full"
+                        className="flex-grow px-4 py-2 text-black outline-none bg-white"
                     />
                     {/* Search button */}
                     <button 
                         type="submit"
-                        className="bg-gold text-white px-6 py-2 font-semibold hover:bg-[#B48225] rounded-full"
+                        className="bg-gold text-white px-6 py-2 font-semibold hover:bg-[#B48225]"
                     >
                         Search
                     </button>
@@ -118,7 +118,7 @@ const Welcome = () => {
 
                 {/* RECOMMENDATION BUBBLES (Only show when no search query is entered)*/}
                 {results.length === 0 && query === "" && (
-                    <div className="mt-6 flex flex-wrap justify-center gap-4">
+                    <div className="mt-6 flex flex-wrap justify-center gap-3 sm:gap-4 w-full px-2 sm:px-0">
                         {/* Predefined building/service names for quick selection */}
                         {["Library", "Gym", "Cafe", "Public Safety"].map((name) => (
                             <button

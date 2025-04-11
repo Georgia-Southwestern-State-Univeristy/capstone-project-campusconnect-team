@@ -240,9 +240,9 @@ const Building = () => {
     }
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen w-full overflow-x-hidden">
             {/* NAVIGATION BAR - align horizontal */}
-            <nav className="flex justify-between items-center bg-white py-4 px-10 shadow-md">
+            <nav className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white py-4 px-6 shadow-md space-y-4 md:space-y-0 md:space-x-6">
                 {/*CampusConnect Logo -> wraps text in link from React Router to home page */}
                 <Link to="/" className="text-2xl font-bold text-gold">
                     Campus <span className="text-navy">Connect</span>
@@ -251,7 +251,7 @@ const Building = () => {
                 {/* SEARCH BAR WITH DROPDOWN */}
                 <div className="relative">
                     {/* Search Form calls handleSearch function when submitted  */} 
-                    <form onSubmit={handleSearch} className="relative w-64 flex">
+                    <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 w-full items-center">
                         {/* Search Input */}
                         <input 
                             type="text" 
@@ -260,12 +260,12 @@ const Building = () => {
                             value={query}
                             //update query state 
                             onChange={(e) => setQuery(e.target.value)}
-                            className="w-full min-w-[400px] px-4 py-2 rounded-full border border-gray-300 focus:outline-none text-black"
+                            className="flex-1 px-4 py-2 rounded-full border border-gray-300 focus:outline-none text-black w-full sm:w-72"
                         />
                         <button 
                             //form submission triggered 
                             type="submit"
-                            className="absolute left-80 top-1/2 transform -translate-y-1/2 bg-gold text-white px-4 py-2 rounded-full hover:bg-[#B48225]"
+                            className="bg-gold text-white px-4 py-2 rounded-full hover:bg-[#B48225] w-full sm:w-auto"
                         >
                             Search
                         </button>
@@ -286,13 +286,18 @@ const Building = () => {
                                 {/*map through search results and display them + change color when hovered*/} 
                                 {searchResults.map((building) => (
                                     
-                                    <li key={building.id} className="hover:bg-gray-200 cursor-pointer px-4 py-2"  onClick={() => setShowDropdown(false)}>  {/*each result is a link to the building page */}
-                                        <Link to={`/building/${building.id}`}>
-                                            {building.building_name}
-                                            {building.relevant_info && (
-                                                <p className="mt-2 text-sm text-gray-600">{building.relevant_info}</p>
-                                            )}
-                                        </Link>
+                                    <li key={building.id} onClick={() => {
+                                        navigate(`/building/${building.id}`); // ensure full box is clickable
+                                        setShowDropdown(false);
+                                      }}
+                                      className="hover:bg-gray-200 cursor-pointer px-4 py-2 transition-all"
+                                    >
+                                      <div>
+                                        <p className="font-medium">{building.building_name}</p>
+                                        {building.relevant_info && (
+                                          <p className="mt-1 text-sm text-gray-600">{building.relevant_info}</p>
+                                        )}
+                                      </div>
                                     </li>
                                 ))}
                             </ul>
@@ -310,8 +315,8 @@ const Building = () => {
                 </div>
             </nav>
 
-            <div className="flex h-screen">
-                <div className="w-1/2 bg-navy text-white p-10 overflow-y-auto">
+            <div className="flex flex-col md:flex-row min-h-screen md:h-[calc(100vh-80px)] gap-6">
+                <div className="w-full lg:w-1/2 bg-navy text-white p-10 overflow-y-auto">
                 {/* Building Details */}
                    {/* Image Slideshow */}
                     {building?.building_image && Array.isArray(building.building_image) && building.building_image.length > 0 ? (
@@ -477,9 +482,9 @@ const Building = () => {
                 </div> 
 
                     {/* Google Maps Preview */}
-                    <div className="w-1/2 relative">
+                    <div className="w-full md:w-1/2 flex flex-col justify-between overflow-hidden bg-white">
                         {/* Map Navigation Component */}
-                        <div className="h-full w-full">
+                        <div className="relative w-full min-h-[400px] sm:min-h-[500px] md:h-full flex-1 overflow-hidden">
                             {/*check if building lat & lng exists and user location exists before rendering  */}
                             {building?.lat && building?.lng && userLocation && (
                                 <MapNavigation
@@ -494,7 +499,7 @@ const Building = () => {
     
     
                         {/* Get Directions Dropdown Below Map */}
-                        <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-4">
+                        <div className="px-4 py-3 flex flex-col gap-3 sm:flex-row sm:items-center bg-white order-first md:order-none">
                                 {/* Button to toggle dropdown visibility */}
                                 <button
                                     className="bg-gold text-white px-4 py-2 rounded-full hover:bg-[#B48225] transition-all"
@@ -505,7 +510,7 @@ const Building = () => {
 
                                 {/* Dropdown to select travel mode - only when "Get Directions" clicked */}
                                 {showTravelDropdown && (
-                                    <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                                    <div className="mt-2 sm:mt-0 w-52 bg-white border rounded-lg shadow-lg text-black">
                                         {/* Dropdown options */}
                                         <label className="block text-black text-lg font-bold p-2">Select Travel Mode:</label>
                                         <select
@@ -520,7 +525,7 @@ const Building = () => {
                                     </div>
                                 )}
                                 {/* Button to open Google Maps with route */}
-                                <button className="ml-4 bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-all"
+                                <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-all"
                                 onClick={openGoogleMaps}> {/*calls the function to open google maps with route*/}
                                     
                                     🚀 Go

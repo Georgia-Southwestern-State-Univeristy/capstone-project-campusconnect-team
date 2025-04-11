@@ -194,9 +194,27 @@ const MapNavigation = ({ destination, userLocation, travelMode, onRouteCalculate
                     directionsRendererRef.current.setDirections(result); //display calculated route
                     console.log("✅ Route drawn");
 
+                    //fit map to show full route
+                    const bounds = new window.google.maps.LatLngBounds();
+                    result.routes[0].overview_path.forEach((point) => bounds.extend(point));
+                    mapInstanceRef.current.fitBounds(bounds);
+
                     //update loading indicators
                     routeDrawnRef.current = true;
                     checkIfMapIsFullyReady(); //show map if both are done 
+
+                    // Re-center the map after all is loaded
+                    setTimeout(() => {
+                        if (mapInstanceRef.current && directionsRendererRef.current.getDirections()) {
+                        const bounds = new window.google.maps.LatLngBounds();
+                        directionsRendererRef.current.getDirections().routes[0].overview_path.forEach((point) => {
+                            bounds.extend(point);
+                        });
+                        mapInstanceRef.current.fitBounds(bounds);
+                        }
+                    }, 500); // slight delay ensures everything is rendered
+
+
 
                     routeCache.current[cacheKey] = result; //store route in cache
 
