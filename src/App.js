@@ -8,9 +8,6 @@ import { testFirestoreConnection } from "./utils/firestoreTest";
 import Welcome from "./pages/Welcome";
 import Building from "./pages/Building";
 import NotFound from "./pages/NotFound";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-
 
 const App = () => {
     console.log("✅ App Component Loaded");
@@ -31,11 +28,6 @@ const App = () => {
                     <Route path="/building/:id" element={<Building />} />
                     {/* Route for NotFound page */} 
                     <Route path="*" element={<NotFound />} /> 
-                    {/* Route for About page */}
-                    <Route path="/about" element={<About />} />
-                    {/* Route for Contact page */}
-                    <Route path="/contact" element={<Contact />} />
-
                 </Routes>
             </div>
         </Router>
