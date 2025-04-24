@@ -5,22 +5,22 @@ import { Link } from "react-router-dom";
 const team = [
   {
     name: "Shaylan Daniel",
-    role: "Project Manager",
-    bio: "Organized team workflow, tested features, and assisted both frontend and backend roles.",
+    role: "Project Manager & Frontend/Backend Developer",
+    bio: "Organized team workflow, tested features, and assisted both frontend and backend devlopment.",
     email: "sdanie27@radar.gsw.edu",
     image: "/shaylan.jpeg"
   },
   {
     name: "Sophia Aparicio-Malacara",
-    role: "Lead Developer & Frontend Designer",
-    bio: "Set up the frameworks, built UI, and interactive map experience with performance optimizations.",
+    role: "Frontend Developer & UI Designer",
+    bio: "Set up the frameworks, enhanced UI, and built interactive map experience with performance optimizations.",
     email: "japarici@radar.edu",
     image: "/sophia-aparicio-malacara.JPG"
   },
   {
     name: "Anjali Patel",
-    role: "Backend & Firebase Developer",
-    bio: "Integrated the Firestore backend and AI-driven search capabilities.",
+    role: "Backend Developer & Database Manager",
+    bio: "Built and optimized Firebase Firestore with AI-powered, keyword-based search, real-time syncing, and secure access rules.",
     email: "apatel19@radar.gsw.edu",
     image: "/anjali.jpeg"
   }
@@ -88,7 +88,7 @@ const Contact = () => {
             </div>
             <div>
               <p className="font-bold">📍 Office Location:</p>
-              <p>Marshall Student Center, Room 204</p>
+              <p> Crawford Wheatley Lounge, Room 204</p>
             </div>
           </div>
         </section>
