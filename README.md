@@ -98,40 +98,40 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 
 
 # Project Directory Structure
-
-├── node_modules/              # Node.js dependencies (auto-generated after doing npm install)
-├── public/                    # Public assets
-│   ├── anjali.jpeg            # Public image asset
-│   ├── index.html             # Main HTML file
-│   ├── shaylan.jpeg           # Public image asset
-│   └── sophia-aparicio-malacara.JPG # Public image asset
-├── src/                       # Source code for the React app
-│   ├── pages/                 # Page components
-|   |   |── App.css            # Global styles for map container layout and mobile responsiveness
-│   │   ├── About.js           # About the CampusConnect app
-│   │   ├── Building.js        # Detailed building info with map, hours, services, and department toggles
-│   │   ├── Contact.js         # Contact information page
-│   │   ├── MapNavigation.js   # Reusable component for showing user-to-building navigation with directions
-│   │   ├── NotFound.js        # 404 page for invalid routes
-│   │   └── Welcome.js         # Landing page with search input and intro to the app
-│   ├── services/              # Services for backend integration
-│   │   ├── auth.js            # Authentication service (Future Implementation)
-│   │   ├── firebase.js        # Firebase configuration and setup
-│   │   ├── firestoreSearchService.js # Main building search logic and keyword matching
-│   │   └── firestoreService.js # Utility functions for Firestore (e.g., AI querying)
-│   │   ├── googleMapsLoader.js # Google Maps Loading function
-│   │   ├── multiScraper.js    # Web Scraper for other GSW links (Future Implementation)
-│   │   ├── webScraper.js      # Web Scraper to scrap GSW Academic Calendar site
-│   ├── utils/                 # Utility functions and helpers
-│   │   └── firestoreTest.js   # Testing utilities for Firestore integration
-│   ├── App.js                 # Main React app layout with routing
-│   └── index.js               # Entry point for the React app (root rendering)
-├── .env                       # Stores API Keys credentials (Rename .env_API_keys to .env)
-├── .gitignore                 # Files and directories to ignore in Git
-├── package-lock.json          # Lock file for exact dependency versions
-├── package.json               # Project dependencies, scripts, and metadata
-└── README.md                  # Project documentation and setup instructions
-
+```
+├── node_modules/                        # Node.js dependencies (auto-generated after npm install)
+├── public/                              # Public assets
+│   ├── anjali.jpeg                      # Public image asset
+│   ├── index.html                       # Main HTML file
+│   ├── shaylan.jpeg                     # Public image asset
+│   └── sophia-aparicio-malacara.JPG     # Public image asset
+├── src/                                 # Source code for the React app
+│   ├── pages/                           # Page components
+│   │   ├── App.css                      # Global styles for layout and responsiveness
+│   │   ├── About.js                     # About the CampusConnect app
+│   │   ├── Building.js                  # Detailed building info with maps and toggles
+│   │   ├── Contact.js                   # Contact page
+│   │   ├── MapNavigation.js             # Component for user-to-building navigation
+│   │   ├── NotFound.js                  # 404 error page
+│   │   └── Welcome.js                   # Landing page with search functionality
+│   ├── services/                        # Backend and Firebase integration
+│   │   ├── auth.js                      # Authentication service (future)
+│   │   ├── firebase.js                  # Firebase config and initialization
+│   │   ├── firestoreSearchService.js    # Building search and keyword match logic
+│   │   ├── firestoreService.js          # Firestore helper functions
+│   │   ├── googleMapsLoader.js          # Google Maps loader
+│   │   ├── multiScraper.js              # Web scraper for other GSW links (future)
+│   │   └── webScraper.js                # Scraper for GSW Academic Calendar
+│   ├── utils/                           # Utility functions
+│   │   └── firestoreTest.js             # Firestore testing functions
+│   ├── App.js                           # Root component and routing
+│   └── index.js                         # Main entry point
+├── .env                                 # Environment variables (rename from .env_API_keys)
+├── .gitignore                           # Files/folders to exclude from Git
+├── package-lock.json                    # Auto-generated lock file for dependencies
+├── package.json                         # Project metadata and dependencies
+└── README.md                            # Project documentation
+```
 
 ### Key Features:
 - The `src/` folder contains the main React application code.
