@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 
+import GoogleMapsLoader from "./services/GoogleMapsLoader";
 
 const App = () => {
     console.log("✅ App Component Loaded");
@@ -21,6 +22,8 @@ const App = () => {
 
     return (
         <Router>
+            {/* Load Google Maps API */}
+            <GoogleMapsLoader />
             {/*light backround color for the app w/ tailwind */}
             <div className="min-h-screen bg-gray-100">
                 {/*define routes */}
