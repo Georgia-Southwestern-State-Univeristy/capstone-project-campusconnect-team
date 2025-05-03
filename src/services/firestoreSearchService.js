@@ -17,7 +17,7 @@ import {
 // ------------------------
   const KEYWORD_MAP = {
     hours: ["operating hours", "open", "close", "timing", "hours", "time", ],
-    services: ["services", "assistance", "help", "offer", "services", "available"],
+    services: ["services", "assistance", "help", "offer", "service", "available"],
     contact: ["contact", "phone", "email", "reach"],
     location: ["where is", "located", "find", "address", "how do i get to", "directions", "where can", "location"],
     departments: ["department", "office", "team", "departments"],
@@ -255,7 +255,6 @@ export const searchAcademicData = async (queryText) => {
     }
   }
   return bestMatch && highestMatchCount > 0 ? [bestMatch] : [];
-   results;
 };
  
  
