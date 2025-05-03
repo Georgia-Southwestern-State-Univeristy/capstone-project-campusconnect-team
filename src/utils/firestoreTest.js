@@ -1,7 +1,7 @@
-import { db } from "../services/firebase"; 
-import { collection, getDocs } from "firebase/firestore";
+import { db } from "../services/firebase"; // Import the Firestore database instance
+import { collection, getDocs } from "firebase/firestore";// Import Firestore functions
 
-export const testFirestoreConnection = async () => {
+export const testFirestoreConnection = async () => {// Function to test Firestore connection
     try {
         const buildingsRef = collection(db, "buildings"); // Reference to Firestore collection
         const snapshot = await getDocs(buildingsRef);

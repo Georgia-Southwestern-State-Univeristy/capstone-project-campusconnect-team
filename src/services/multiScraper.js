@@ -239,8 +239,8 @@ const runScrapers = async () => {
   console.log("✅ Scraping completed with Puppeteer.");
 };
 
-
-runScrapers();
+// Run the scrapers
+runScrapers(); 
 
 
 

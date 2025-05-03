@@ -1,9 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // Importing Link from react-router-dom for navigation
 
-const About = () => {
+const About = () => {// This is the About page component
   return (
-    <div className="min-h-screen bg-navy text-white">
+    <div className="min-h-screen bg-navy text-white"> //
       {/* Navbar */}
       <nav className="flex justify-between items-center bg-white py-4 px-10 shadow-md">
         <Link to="/" className="text-2xl font-bold text-gold">
@@ -21,7 +21,7 @@ const About = () => {
 
         {/* Card - What is CampusConnect */}
         <div className="bg-white text-navy rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-semibold mb-2">📌 What is CampusConnect?</h2>
+          <h2 className="text-2xl font-semibold mb-2">📌 What is CampusConnect?</h2> 
           <p className="text-lg leading-relaxed">
             CampusConnect is a responsive, web-based campus navigation platform built to simplify the college experience. Designed with students, staff, and visitors in mind, it enables users to explore buildings, departments, and services across campus through an intuitive UI backed by real-time data and AI-powered search.
           </p>

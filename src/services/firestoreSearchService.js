@@ -15,7 +15,7 @@ import {
 // ------------------------
 // Building Collection Support
 // ------------------------
-  const KEYWORD_MAP = {
+  const KEYWORD_MAP = { // Mapping keywords to building attributes
     hours: ["operating hours", "open", "close", "timing", "hours", "time", ],
     services: ["services", "assistance", "help", "offer", "service", "available"],
     contact: ["contact", "phone", "email", "reach"],
@@ -25,11 +25,11 @@ import {
 };
  
  
-function getAnswerFromBuilding(building, lowerCaseQuery) {
+function getAnswerFromBuilding(building, lowerCaseQuery) { // Function to extract relevant information from a building object based on the query
   let answer = "";
-  for (const [key, keywords] of Object.entries(KEYWORD_MAP)) {
+  for (const [key, keywords] of Object.entries(KEYWORD_MAP)) {    // Loop through each keyword category
     for (const keyword of keywords) {
-      if (lowerCaseQuery.includes(keyword)) {
+      if (lowerCaseQuery.includes(keyword)) { // Check if the query contains any of the keywords
         switch (key) {
           case "hours":
             if (Array.isArray(building.operating_hours) && building.operating_hours.length > 0) {
@@ -51,8 +51,8 @@ function getAnswerFromBuilding(building, lowerCaseQuery) {
                 });
               }
               break;
-            case "contact":
-              if (building.phone_num || building.email) {
+            case "contact": 
+              if (building.phone_num || building.email) {// Check if either phone number or email exists
                 answer = "<strong>Contact Information:</strong><br/>";
  
                 // Open a div with left padding for indentation
@@ -90,9 +90,9 @@ function getAnswerFromBuilding(building, lowerCaseQuery) {
             }
             break;
  
-          case "location":
+          case "location":// Check if the query is about location
             if (building.lat && building.lng) {
-              answer = "<strong>Location: </strong>" + building.building_name;
+              answer = "<strong>Location: </strong>" + building.building_name;// Start with the building name
             }
             break;
             case "departments":
@@ -121,12 +121,12 @@ function getAnswerFromBuilding(building, lowerCaseQuery) {
 }
  
  
-const getAIResponseFromExtension = async (queryText) => {
+const getAIResponseFromExtension = async (queryText) => { // Function to get AI-generated response from Firestore
   try {
-    const docRef = await addDoc(collection(db, "extChatHistory"), {
-      prompt: `${queryText} (Provide a concise response, no more than 3 sentences.)`,
-      createTime: serverTimestamp(),
-      max_tokens: 100,
+    const docRef = await addDoc(collection(db, "extChatHistory"), {// Add a new document to the extChatHistory collection
+      prompt: `${queryText} (Provide a concise response, no more than 3 sentences.)`,// Prompt for the AI
+      createTime: serverTimestamp(),// Timestamp for when the document was created
+      max_tokens: 100,// Maximum tokens for the AI response
     });
     return new Promise((resolve, reject) => {
       const unsubscribe = onSnapshot(
@@ -149,43 +149,43 @@ const getAIResponseFromExtension = async (queryText) => {
       );
     });
   } catch (error) {
-    console.error("AI error:", error);
-    return "There was an error processing your request.";
+    console.error("AI error:", error);// Log any errors that occur
+    return "There was an error processing your request.";// Return a default error message
   }
 };
  
  
-export const searchBuildings = async (searchQuery) => {
-  if (!searchQuery) return [];
-  const buildingsRef = collection(db, "buildings");
+export const searchBuildings = async (searchQuery) => {// Function to search for buildings based on the query
+  if (!searchQuery) return [];// If no query, return empty array
+  const buildingsRef = collection(db, "buildings"); // Reference to the buildings collection
   let results = [];
   const lowerCaseQuery = searchQuery.toLowerCase().trim().replace(/[?.,!]/g, "");
  
  
-  const exactQuery = query(buildingsRef, where("search_keywords", "array-contains", lowerCaseQuery));
-  const exactSnapshot = await getDocs(exactQuery);
+  const exactQuery = query(buildingsRef, where("search_keywords", "array-contains", lowerCaseQuery));// Query for exact matches
+  const exactSnapshot = await getDocs(exactQuery);// Execute the query
   exactSnapshot.forEach((doc) => results.push({ id: doc.id, ...doc.data() }));
  
  
-  if (results.length === 0) {
-    const queryWords = lowerCaseQuery.split(/\s+/);
-    const fuzzyQuery = query(buildingsRef, where("search_keywords", "array-contains-any", queryWords.slice(0, 10)));
+  if (results.length === 0) {// If no exact matches found, perform a fuzzy search
+    const queryWords = lowerCaseQuery.split(/\s+/);// Split the query into words
+    const fuzzyQuery = query(buildingsRef, where("search_keywords", "array-contains-any", queryWords.slice(0, 10)));// Query for fuzzy matches (up to 10 words)
     const fuzzySnapshot = await getDocs(fuzzyQuery);
     fuzzySnapshot.forEach((doc) => results.push({ id: doc.id, ...doc.data() }));
   }
  
  
-  if (results.length > 0) {
-    return results.map((b) => ({
+  if (results.length > 0) {// If results found, filter them based on the query
+    return results.map((b) => ({// Map the results to a specific format
       id: b.id,
-      building_name: b.building_name,
-      relevant_info: getAnswerFromBuilding(b, lowerCaseQuery) || "",
+      building_name: b.building_name,// Building name
+      relevant_info: getAnswerFromBuilding(b, lowerCaseQuery) || "",// Relevant information based on the query
       isLocationQuery: false,
     }));
   }
  
  
-  const aiResponse = await getAIResponseFromExtension(searchQuery);
+  const aiResponse = await getAIResponseFromExtension(searchQuery);// Get AI-generated response if no results found
   return [{ id: "ai-response", building_name: "AI Response", relevant_info: aiResponse }];
 };
  
@@ -213,13 +213,13 @@ export const searchAcademicData = async (queryText) => {
   });
  
  
-  if (allEvents.length === 0) return [];
+  if (allEvents.length === 0) return [];// If no events found, return empty array
  
  
-  const STOP_WORDS = new Set(["when", "does", "do", "is", "are", "a", "an", "the", "for", "to", "of"]);
+  const STOP_WORDS = new Set(["when", "does", "do", "is", "are", "a", "an", "the", "for", "to", "of"]);// Set of stop words to ignore in the query
  
  
-  const queryWords = queryText
+  const queryWords = queryText  // Process the query text
   .toLowerCase()
   .replace(/[?.,!]/g, "")
   .split(/\s+/)
@@ -231,7 +231,7 @@ export const searchAcademicData = async (queryText) => {
   for (const event of allEvents) {
     let keywords = [];
  
-    if (Array.isArray(event.keyword)) {
+    if (Array.isArray(event.keyword)) {// Check if keywords are in an array
       keywords = event.keyword.map(k => k.toLowerCase());
     } else if (typeof event.keyword === 'string') {
       keywords = event.keyword.toLowerCase().split(/\s+/);
@@ -243,36 +243,36 @@ export const searchAcademicData = async (queryText) => {
       0
     );
  
-    if (matchCount > highestMatchCount) {
+    if (matchCount > highestMatchCount) {// If the current match count is higher than the previous highest
       highestMatchCount = matchCount;
       bestMatch = {
         title: event.title,
         date: event.date,
-        description: event.description || "No additional info",
+        description: event.description || "No additional info",// Description of the event
         term: event.term,
         matchCount,
       };
     }
   }
-  return bestMatch && highestMatchCount > 0 ? [bestMatch] : [];
+  return bestMatch && highestMatchCount > 0 ? [bestMatch] : [];// Return the best match if found, otherwise return empty array
 };
  
  
-export const generateAIExplanation = async (rawFact, contextType = "academic") => {
+export const generateAIExplanation = async (rawFact, contextType = "academic") => {   // Function to generate AI explanation based on the raw fact and context type (academic or building)
   const prompt = contextType === "academic"
     ? `Explain this academic event in a friendly, informative tone: ${rawFact}`
     : `Explain this campus information in a friendly, informative tone: ${rawFact}`;
  
  
   try {
-    const docRef = await addDoc(collection(db, "extChatHistory"), {
+    const docRef = await addDoc(collection(db, "extChatHistory"), {// Add a new document to the extChatHistory collection
       prompt,
       createTime: serverTimestamp(),
       max_tokens: 150,
     });
  
  
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {// Create a new promise to handle the AI response
       const unsubscribe = onSnapshot(
         docRef,
         (docSnapshot) => {
@@ -288,12 +288,12 @@ export const generateAIExplanation = async (rawFact, contextType = "academic") =
             unsubscribe();
           }
         },
-        (error) => reject(error)
+        (error) => reject(error)// Handle any errors that occur during the snapshot
       );
     });
   } catch (error) {
-    console.error("AI generation error:", error);
+    console.error("AI generation error:", error);// Log any errors that occur
     return "";
   }
-};
+};// Function to generate AI explanation based on the raw fact and context type (academic or building)
  

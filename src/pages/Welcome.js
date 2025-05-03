@@ -8,14 +8,16 @@ import {
 } from "../services/firestoreSearchService";
 
 
-const Welcome = () => {
-  const [query, setQuery] = useState("");
+const Welcome = () => { // This is the main welcome page for the app
+  // State variables to manage search query, results, AI response, and loading state
+  const [query, setQuery] = useState("");//
   const [results, setResults] = useState([]);
   const [aiResponse, setAiResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [isAcademicQuery, setIsAcademicQuery] = useState(false);
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // useNavigate hook from react-router-dom for navigation
+  // Function to handle search submission
 
   const handleSearch = async (event) => {
     event.preventDefault();
@@ -25,7 +27,8 @@ const Welcome = () => {
     setAiResponse("");
     setResults([]);
 
-    const academicResults = await searchAcademicData(query);
+    const academicResults = await searchAcademicData(query);// Search for academic events using the query
+    // If academic results are found, set them and generate an AI explanation
     if (academicResults.length > 0) {
       setResults(academicResults);
       setIsAcademicQuery(true);
@@ -37,13 +40,13 @@ const Welcome = () => {
       return;
     }
 
-    const buildingsResults = await searchBuildings(query);
+    const buildingsResults = await searchBuildings(query);    // Search for buildings using the query
     setResults(buildingsResults);
     setIsAcademicQuery(false);
 
     const aiGenerated = buildingsResults.find((b) => b.id === "ai-response");
 
-    if (aiGenerated) {
+    if (aiGenerated) {  // If AI-generated response is found, set it as the AI response
       setAiResponse(aiGenerated.relevant_info);
     } else if (buildingsResults.length > 0) {
       const fact = buildingsResults[0].relevant_info || "";
@@ -55,7 +58,7 @@ const Welcome = () => {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center justify-between bg-navy text-white px-4 py-8 sm:px-8">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center justify-between bg-navy text-white px-4 py-8 sm:px-8"> ?
 
 
       {/* Top-right links for About and Contact */}
@@ -74,14 +77,15 @@ const Welcome = () => {
         </Link>
       </div>
 
-      <div className="flex-grow flex flex-col items-center justify-center">
+      {/* Main content area */}
+      <div className="flex-grow flex flex-col items-center justify-center"> 
         <h1 className="text-5xl font-extrabold">Welcome to</h1>
         <h2 className="text-6xl font-extrabold text-gold mt-2">CampusConnect!</h2>
         <p className="mt-4 text-lg text-gray-300 text-center px-6">
           Find campus buildings or academic events quickly!
         </p>
-
-        <form onSubmit={handleSearch} className="mt-6 w-full max-w-lg flex items-center bg-white rounded-full shadow-md overflow-hidden">
+        
+        <form onSubmit={handleSearch} className="mt-6 w-full max-w-lg flex items-center bg-white rounded-full shadow-md overflow-hidden"> 
           <input
             type="text"
             placeholder="🔍 Search for a building or event..."
@@ -94,7 +98,7 @@ const Welcome = () => {
           </button>
         </form>
 
-        {aiResponse && (
+        {aiResponse && ( // If AI response is available, display it
           <div className="mt-4 w-full max-w-lg bg-white text-black rounded-lg shadow-lg p-3">
             <p className="text-center font-semibold text-gray-700">Gemini Explanation:</p>
             <p className="text-center text-gray-900">{aiResponse}</p>
@@ -104,7 +108,7 @@ const Welcome = () => {
         {loading && <div className="mt-4 text-white">Loading results...</div>}
 
 
-        {isAcademicQuery && results.length > 0 && !loading && (
+        {isAcademicQuery && results.length > 0 && !loading && ( // If academic query is true and results are available, display them
           <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
             <p className="text-center font-semibold text-gray-700">Academic Events:</p>
             <ul>
@@ -120,8 +124,8 @@ const Welcome = () => {
         )}
 
 
-        {!isAcademicQuery && results.length > 0 && !loading && results[0].id !== "ai-response" && (
-          <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
+        {!isAcademicQuery && results.length > 0 && !loading && results[0].id !== "ai-response" && ( // If not an academic query and results are available, display building locations
+          <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3"> 
             <p className="text-center font-semibold text-gray-700">Select a location:</p>
             <ul>
               {results.map((b) => (
@@ -137,7 +141,7 @@ const Welcome = () => {
         )}
 
 
-        {results.length === 0 && query === "" && (
+        {results.length === 0 && query === "" && ( // If no results and no query, display default buttons
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             {["Library", "Gym", "Cafe", "Public Safety"].map((name) => (
               <button
@@ -147,7 +151,7 @@ const Welcome = () => {
                   const searchResults = await searchBuildings(name.toLowerCase());
                   setResults(searchResults);
                 }}
-                className="px-5 py-2 bg-gold text-white rounded-full shadow-lg hover:bg-[#B48225]"
+                className="px-5 py-2 bg-gold text-white rounded-full shadow-lg hover:bg-[#B48225]" 
               >
                 {name}
               </button>
@@ -159,5 +163,6 @@ const Welcome = () => {
   );
 };
 
-export default Welcome;
+export default Welcome; // This is the main welcome page for the app. It includes a search bar, AI response, and displays results based on user input.
+// The page is styled using Tailwind CSS and includes a navigation bar with links to the About and Contact pages.
 
