@@ -1,2 +1,1 @@
-console.log("test"); // Future Applications: CampusConnect aims to expand its features to include personalized user accounts, 
-// event calendars, and campus news updates. We envision a platform that not only helps users navigate but also keeps them informed and engaged with campus life.</p>
+console.log("test"); 
