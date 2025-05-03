@@ -28,9 +28,9 @@ const scrapeData = async () => {
       if (captionText.includes("Spring") || captionText.includes("Summer") || captionText.includes("Fall")) {
         const termName = captionText;
         $(element).find("tr").each((i, row) => {
-          const eventTitle = $(row).find("td:first-child").text().trim();
-          const eventDate = $(row).find("td:nth-child(2)").text().trim();
-          const eventDetails = $(row).find("td:nth-child(3)").text().trim();
+          const eventTitle = $(row).find("td:first-child").text().trim();   // Get the event title from the first column
+          const eventDate = $(row).find("td:nth-child(2)").text().trim();// Get the event date from the second column
+          const eventDetails = $(row).find("td:nth-child(3)").text().trim();// Get the event details from the third column
           if (eventTitle && eventDate) {
             academicEvents.push({
               title: eventTitle,
@@ -45,7 +45,7 @@ const scrapeData = async () => {
     });
 
 
-    if (academicEvents.length > 0) {
+    if (academicEvents.length > 0) {  // Check if any events were found
       await saveScrapedData(academicEvents);
     } else {
       console.log("No events found to scrape.");

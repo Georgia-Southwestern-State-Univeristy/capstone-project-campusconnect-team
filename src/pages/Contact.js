@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 // Team Info
-const team = [
+const team = [    // Array of team members with their details
   {
     name: "Shaylan Daniel",
     role: "Project Manager & Frontend/Backend Developer",
@@ -26,7 +26,8 @@ const team = [
   }
 ];
 
-const Contact = () => {
+const Contact = () => {   // This is the Contact page component
+  // This page provides information about the team and contact details
   return (
     <div className="min-h-screen bg-navy text-white">
       {/* Nav */}

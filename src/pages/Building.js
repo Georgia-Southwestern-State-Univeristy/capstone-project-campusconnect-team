@@ -193,12 +193,12 @@ const Building = () => {
         //if search empty, exit
         if (query.trim() === "") return;
 
-        setAiLoading(true);
+        setAiLoading(true); //set loading state to true
         setAiResponse("");
         setSearchResults([]);
         const academicResults = await searchAcademicData(query);
         
-        if (academicResults.length > 0) {
+        if (academicResults.length > 0) {//if academic results found
             setSearchResults(academicResults);
             setIsAcademicQuery(true);
             const fact = `${academicResults[0].title} on ${academicResults[0].date}`;
@@ -208,12 +208,12 @@ const Building = () => {
             return;
         }
 
-        const buildingsResults = await searchBuildings(query);
+        const buildingsResults = await searchBuildings(query);//search for buildings
         setSearchResults(buildingsResults);
         setIsAcademicQuery(false);
         const aiGenerated = buildingsResults.find((b) => b.id === "ai-response");
         
-        if (aiGenerated) {
+        if (aiGenerated) {//if AI response found in results
             setAiResponse(aiGenerated.relevant_info);
             setShowDropdown(false); // Hide dropdown if AI response is shown
         } else if (buildingsResults.length > 0) {
@@ -307,7 +307,7 @@ const Building = () => {
                     )}
 
                     {aiLoading && (
-                        <div className="text-black mt-4">🧠 Generating Gemini explanation...</div>
+                        <div className="text-black mt-4">🧠 Generating Gemini explanation...</div> //loading message while AI response is generated
                     )}
                     {isAcademicQuery && searchResults.length > 0 && !loading && (
                         <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
@@ -323,7 +323,7 @@ const Building = () => {
                         </div>
                     )}
                     {/* DROPDOWN RESULTS -  working****/}
-                    {!isAcademicQuery && searchResults.length > 0 && !loading && searchResults[0].id !== "ai-response" && (
+                    {!isAcademicQuery && searchResults.length > 0 && !loading && searchResults[0].id !== "ai-response" && (//if AI response is not found in results
                 <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
                     <p className="text-center font-semibold text-gray-700">Select a location:</p>
                     <ul>
@@ -443,7 +443,7 @@ const Building = () => {
                         )}
 
 
-                        {building?.departments && (
+                        {building?.departments && (     //check if departments exist in firebase
                             <>
                                 <p className="font-bold text-lg">🏢 Departments:</p>
                                 <ul className="list-none ml-6">

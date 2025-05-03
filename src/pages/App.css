@@ -1,5 +1,5 @@
-.map-container {
-    width: 100%;
+.map-container { /*This class is used to style the map container */
+    width: 100%; /* Full width of the parent container */
     height: 100%;
     position: absolute;
     top: 0;
