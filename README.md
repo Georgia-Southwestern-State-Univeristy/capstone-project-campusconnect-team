@@ -6,21 +6,22 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 ## Frontend
   * React.js: Used for building the web app's user interface (UI). React's component-based structure allows us to create reusable components for the homepage, map navigation, building information, and destination pages.
   * Google Maps API: Powers the interactive map that displays campus buildings, navigation routes, and clickable markers. It also provides features like route direction and location sharing for a seamless user experience.
-  * Tailwind CSS:Enables rapid UI styling with utility-first CSS classes, ensuring the app looks modern, is responsive, and adapts well to different screen sizes and devices.
+  * Tailwind CSS: Enables rapid UI styling with utility-first CSS classes, ensuring the app looks modern, is responsive, and adapts well to different screen sizes and devices.
     
 ## Backend
-  * Firebase Firestore:Used to store data related to campus buildings, such as names, descriptions, contact information, and office hours. Firestore's real-time syncing allows updates (e.g., parking availability or building status) to reflect instantly in the app. 
+  * Firebase Cloud Firestore: Used to store data related to campus buildings, such as names, descriptions, contact information, and office hours. Also stores data for AI generated responses along with data scraped from the Web Scraper. Firestore's real-time syncing allows updates (e.g., building operation status) to reflect instantly in the app. 
       
 ## Tools
   * Git/GitHub:Used for version control and collaborative development. The team tracks progress, organizes sprints, and manages codebase updates efficiently using GitHub's project boards and branching features.
   * Visual Studio Code: The primary development environment, enhanced by extensions for React, Tailwind, and Firebase to streamline the coding process.
   * Github projects:A project management tool used to divide tasks, assign roles, and ensures timely completion of sprints.
-  * Google Cloud Console: Interface to manage Firebase services like Firestore, Authentication, and Hosting. Also used for API key management and monitoring analytics.
+  * Google Cloud Console: Interface to manage Firebase services like Cloud Firestore, Authentication, and Extensions. Also used for API key management and monitoring analytics.
   * Git Bash: Command-line tool used to run Git commands, push/pull changes, and manage branches in Windows environments.
 
       
 # Programming Languages:
-  * JavaScript: TThe primary language used for both frontend interface logic and direct database communication. React handles the dynamic user interface, while Firebase’s JavaScript SDK allows the app to read/write Firestore data, handle authentication, and interact with AI services — all securely from the client side.
+  * JavaScript: The primary language used for both frontend interface logic and direct database communication. React handles the dynamic user interface, while Firebase’s JavaScript SDK allows the app to read/write Firestore data, handle authentication, and interact with AI services — all securely from the client side.
+  * HTML: Secondary language used solely for the backbone of the application, index.html file.
 
 
        
@@ -35,9 +36,17 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 ## Backend Workflow      
   * Firebase Firestore: CampusConnect uses Firestore as a real-time NoSQL database to store data related to campus buildings, including names, descriptions, operating hours, services, and geographical coordinates. The frontend (React) communicates directly with Firestore using the Firebase SDK — no backend server is required. This allows seamless and secure data retrieval in JSON format. Firestore’s real-time syncing ensures that updates, such as changes to department hours or location info, are immediately reflected in the UI without requiring a manual page refresh.
           
-  * FirestoreSearchService: handles keyword, service-based search queries, and queries sent to AI for response generation and storing response in the database.
+  * FirestoreSearchService: Handles keyword, service-based search queries, and queries sent to AI for response generation and storing response in the database.
 
-  * Gemini AI via Firestore Extension: AI-powered answers are generated through a Firestore collection (extChatHistory) that triggers external processing via Gemini. The frontend writes a user query to the collection, and when a response is generated, it’s synced back to the app in real-time using onSnapshot() listeners.
+  * Gemini AI via Firestore Extension: AI-powered answers are generated through a Firebase collection (extChatHistory) that triggers external processing via Gemini. The frontend writes a user query to the collection, and when a response is generated, it’s synced back to the app in real-time using onSnapshot() listeners.
+  
+  * WebScraper: Scrapes the GSW link for academic calendar and stores it in the Firebase Database in the collection (WebScraperData) for the AI to grab when generating a response relating to user input for the calendar.
+ 
+  * MultiScraper: Future implementation for adding more GSW links to scrap data and store in Firebase for AI to generate accurate results.
+  
+  * GoogleMapsLoader: Function to load Google Maps on the application.
+  
+  * Auth: Future implementation to add User Accounts for User Personalized Responses.
 
 
 
@@ -54,7 +63,6 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
   ## Google Cloud Console:
    * Generate API keys for Google Maps, monitor database access, and review analytics.
  
-
 
 
 
@@ -85,37 +93,40 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 ## Responsive Design	Mobile-first layouts:  
    * Clean collapsible UI, smaller buttons on mobile, and adaptive components for all screen sizes.
      
-     
 ## Department & Pricing Info: 
    * Includes toggles to view internal department details. Dining hall pricing and custom formatting supported.
 
 
 # Project Directory Structure
 
-├── node_modules/              # Node.js dependencies (auto-generated)
+├── node_modules/              # Node.js dependencies (auto-generated after doing npm install)
 ├── public/                    # Public assets
+│   ├── anjali.jpeg            # Public image asset
 │   ├── index.html             # Main HTML file
+│   ├── shaylan.jpeg           # Public image asset
 │   └── sophia-aparicio-malacara.JPG # Public image asset
 ├── src/                       # Source code for the React app
 │   ├── pages/                 # Page components
 |   |   |── App.css            # Global styles for map container layout and mobile responsiveness
 │   │   ├── About.js           # About the CampusConnect app
 │   │   ├── Building.js        # Detailed building info with map, hours, services, and department toggles
-│   │   ├── chatbox.js         # AI-powered chatbot with Firestore + Gemini response support
 │   │   ├── Contact.js         # Contact information page
 │   │   ├── MapNavigation.js   # Reusable component for showing user-to-building navigation with directions
 │   │   ├── NotFound.js        # 404 page for invalid routes
 │   │   └── Welcome.js         # Landing page with search input and intro to the app
 │   ├── services/              # Services for backend integration
-│   │   ├── auth.js            # Authentication service (if used)
+│   │   ├── auth.js            # Authentication service (Future Implementation)
 │   │   ├── firebase.js        # Firebase configuration and setup
-│   │   ├── firestore.js       # Firestore database read/write functions
 │   │   ├── firestoreSearchService.js # Main building search logic and keyword matching
 │   │   └── firestoreService.js # Utility functions for Firestore (e.g., AI querying)
+│   │   ├── googleMapsLoader.js # Google Maps Loading function
+│   │   ├── multiScraper.js    # Web Scraper for other GSW links (Future Implementation)
+│   │   ├── webScraper.js      # Web Scraper to scrap GSW Academic Calendar site
 │   ├── utils/                 # Utility functions and helpers
 │   │   └── firestoreTest.js   # Testing utilities for Firestore integration
 │   ├── App.js                 # Main React app layout with routing
-│   └── index.js              # Entry point for the React app (root rendering)
+│   └── index.js               # Entry point for the React app (root rendering)
+├── .env                       # Stores API Keys credentials (Rename .env_API_keys to .env)
 ├── .gitignore                 # Files and directories to ignore in Git
 ├── package-lock.json          # Lock file for exact dependency versions
 ├── package.json               # Project dependencies, scripts, and metadata
@@ -125,7 +136,7 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 ### Key Features:
 - The `src/` folder contains the main React application code.
 - The `pages/` directory includes components for the **Welcome**, **Building**, **About**, **Contact**, and **NotFound** pages.
-- The `services/` directory houses all backend-related services, such as Firebase integration, authentication, and Firestore operations.
+- The `services/` directory houses all backend-related services, such as Firebase integration, Google Maps Loading function, and Firebase logic for search operations.
 - The `utils/` folder contains utility functions, including testing utilities for Firestore.
 - Fully mobile responsive UI:
    - Departments collapse cleanly on mobile.
@@ -135,7 +146,7 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
    - Travel mode switching (walking/driving).
    - External link to Google Maps app/site.
 - AI Assistance built-in:
-   - If a user query doesn’t match any building, Gemini AI provides a helpful summary.
+   - If a user query doesn’t match any building, Gemini AI provides a helpful summary using the data from the WebScraper.
    - Chatbot combines search and AI for real-time help.
 
 
@@ -179,10 +190,24 @@ ensure package.json contains:
   "test": "react-scripts test"
 }
 ```
+### 4. Add .env credentials for API keys to .env_API_keys
+```sh
+REACT_APP_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+REACT_APP_FIREBASE_API_KEY=your-firebase-api-key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
+REACT_APP_FIREBASE_PROJECT_ID=your-firebase-project-id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
+REACT_APP_FIREBASE_APP_ID=your-firebase-app-id
+REACT_APP_FIREBASE_MEASUREMENT_ID=your-firebase-measurement-id
+```
+The .env file will be shared with you securely, so you just need to replace the placeholder values with actual credentials, and make sure to rename .env_API_keys to .env before running the application.
+
 Implement Tailwind CSS by adding it as a CDN in the <head> section of index.html.
 
 Run the application:
 ```sh
+npm install
 npm start
 ```
 # API Documentation:
