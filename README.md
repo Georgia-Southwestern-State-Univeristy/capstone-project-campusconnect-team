@@ -9,7 +9,10 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
   * Tailwind CSS: Enables rapid UI styling with utility-first CSS classes, ensuring the app looks modern, is responsive, and adapts well to different screen sizes and devices.
     
 ## Backend
-  * Firebase Cloud Firestore: Used to store data related to campus buildings, such as names, descriptions, contact information, and office hours. Also stores data for AI generated responses along with data scraped from the Web Scraper. Firestore's real-time syncing allows updates (e.g., building operation status) to reflect instantly in the app. 
+  * Firebase Cloud Firestore: Used to store data related to campus buildings, such as names, descriptions, contact information, and office hours. Also stores data for AI generated responses along with data scraped from the Web Scraper. Firestore's real-time syncing allows updates (e.g., building operation status) to reflect instantly in the app.
+  * React Router:	Enables single-page application (SPA) routing between pages
+  * Gemini AI (Firebase Extension): Processes fallback queries for unmatched building searches and generates contextual responses
+  * Web Scraper:	Scrapes academic calendar from GSW website and stores in Firestore for AI to access
       
 ## Tools
   * Git/GitHub:Used for version control and collaborative development. The team tracks progress, organizes sprints, and manages codebase updates efficiently using GitHub's project boards and branching features.
@@ -85,7 +88,8 @@ Campus Connect is an interactive, AI-assisted user-friendly web application desi
 ## Navigation Assistance:
    * "Get Directions" button launches travel options.
    * Travel mode toggle (Walking/Driving).
-   * "Go" button triggers turn-by-turn Google route..
+   * "Go" button triggers turn-by-turn Google route.
+   * Displays distance and time estimates, route polyline, and status messages\
  
 ## Location Sharing Services:
    * Pop-up prompt for enabling location sharing to provide accurate routing. Destination Reached pop-up notification with options to return to the Welcome Screen or initiate a new search.
