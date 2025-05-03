@@ -1,5 +1,4 @@
 
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -16,25 +15,20 @@ const Welcome = () => {
   const [loading, setLoading] = useState(false);
   const [isAcademicQuery, setIsAcademicQuery] = useState(false);
 
-
   const navigate = useNavigate();
-
 
   const handleSearch = async (event) => {
     event.preventDefault();
     if (query.trim() === "") return;
 
-
     setLoading(true);
     setAiResponse("");
     setResults([]);
-
 
     const academicResults = await searchAcademicData(query);
     if (academicResults.length > 0) {
       setResults(academicResults);
       setIsAcademicQuery(true);
-
 
       const fact = `${academicResults[0].title} on ${academicResults[0].date}`;
       const explanation = await generateAIExplanation(fact, "academic");
@@ -43,14 +37,11 @@ const Welcome = () => {
       return;
     }
 
-
     const buildingsResults = await searchBuildings(query);
     setResults(buildingsResults);
     setIsAcademicQuery(false);
 
-
     const aiGenerated = buildingsResults.find((b) => b.id === "ai-response");
-
 
     if (aiGenerated) {
       setAiResponse(aiGenerated.relevant_info);
@@ -58,15 +49,10 @@ const Welcome = () => {
       const fact = buildingsResults[0].relevant_info || "";
       const explanation = await generateAIExplanation(fact, "building");
       setAiResponse(explanation);
-
-
-    
     }
-
 
     setLoading(false);
   };
-
 
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col items-center justify-between bg-navy text-white px-4 py-8 sm:px-8">
@@ -88,14 +74,12 @@ const Welcome = () => {
         </Link>
       </div>
 
-
       <div className="flex-grow flex flex-col items-center justify-center">
         <h1 className="text-5xl font-extrabold">Welcome to</h1>
         <h2 className="text-6xl font-extrabold text-gold mt-2">CampusConnect!</h2>
         <p className="mt-4 text-lg text-gray-300 text-center px-6">
           Find campus buildings or academic events quickly!
         </p>
-
 
         <form onSubmit={handleSearch} className="mt-6 w-full max-w-lg flex items-center bg-white rounded-full shadow-md overflow-hidden">
           <input
@@ -110,14 +94,12 @@ const Welcome = () => {
           </button>
         </form>
 
-
         {aiResponse && (
           <div className="mt-4 w-full max-w-lg bg-white text-black rounded-lg shadow-lg p-3">
             <p className="text-center font-semibold text-gray-700">Gemini Explanation:</p>
             <p className="text-center text-gray-900">{aiResponse}</p>
           </div>
         )}
-
 
         {loading && <div className="mt-4 text-white">Loading results...</div>}
 
@@ -177,14 +159,5 @@ const Welcome = () => {
   );
 };
 
-
 export default Welcome;
-
-
-
-
-
-
-
-
 

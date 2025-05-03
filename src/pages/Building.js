@@ -6,12 +6,9 @@ import { useParams, NavLink,Link, useNavigate } from "react-router-dom";
 import { db } from "../services/firebase";
 import { doc, getDoc } from "firebase/firestore";
 //imports searchBuildings function to search for buildings
-import { searchBuildings } from "../services/firestoreSearchService";
+import { searchBuildings, searchAcademicData, generateAIExplanation } from "../services/firestoreSearchService";
 //imports MapNavigation component to display map 
 import MapNavigation from "../pages/MapNavigation"; // Import MapNavigation
-
-
-
 
 const Building = () => {
     //get building id from URL
@@ -30,7 +27,8 @@ const Building = () => {
     //boolean to check if dropdown should be shown****
     const [showDropdown, setShowDropdown] = useState(false);
     const [aiResponse, setAiResponse] = useState(""); // Store AI response
-
+    const [aiLoading, setAiLoading] = useState(false);
+    const [isAcademicQuery, setIsAcademicQuery] = useState(false);
 
     //dropdown for departments
     const [expandedDepartment, setExpandedDepartment] = useState(null);
@@ -81,11 +79,6 @@ const Building = () => {
             return () => clearInterval(interval);
         }
     }, [building]); // Add dependency on 'building' - Re-run effect when `building` changes (e.g., user navigates to a new building).
-
-
-
-
-
 
     // Function to move to next slide (check for valid images)
     const nextSlide = () => {
@@ -193,12 +186,6 @@ const Building = () => {
         setExpandedDepartment(expandedDepartment === index ? null : index);
     };
 
-
-   
-
-
-
-
     // handles search form submission
     const handleSearch = async (event) => {
         //prevent default behavior of form submission
@@ -206,19 +193,35 @@ const Building = () => {
         //if search empty, exit
         if (query.trim() === "") return;
 
-
-        //call searchBuildings function to get search results
-        const results = await searchBuildings(query);
-       
-        // Check if the first result is an AI-generated response
-        if (results.length === 1 && results[0].id === "ai-response") {
-            setAiResponse(results[0].relevant_info);
-            setShowDropdown(false); // Hide dropdown if AI response is shown
-        } else {
-            setSearchResults(results);
-            setAiResponse(""); // Reset AI response if results are from buildings
-            setShowDropdown(results.length > 0);
+        setAiLoading(true);
+        setAiResponse("");
+        setSearchResults([]);
+        const academicResults = await searchAcademicData(query);
+        
+        if (academicResults.length > 0) {
+            setSearchResults(academicResults);
+            setIsAcademicQuery(true);
+            const fact = `${academicResults[0].title} on ${academicResults[0].date}`;
+            const explanation = await generateAIExplanation(fact, "academic");
+            setAiResponse(explanation);
+            setAiLoading(false);
+            return;
         }
+
+        const buildingsResults = await searchBuildings(query);
+        setSearchResults(buildingsResults);
+        setIsAcademicQuery(false);
+        const aiGenerated = buildingsResults.find((b) => b.id === "ai-response");
+        
+        if (aiGenerated) {
+            setAiResponse(aiGenerated.relevant_info);
+            setShowDropdown(false); // Hide dropdown if AI response is shown
+        } else if (buildingsResults.length > 0) {
+            const fact = buildingsResults[0].relevant_info || "";
+            const explanation = await generateAIExplanation(fact, "building");
+            setAiResponse(explanation);
+        }
+        setAiLoading(false);
     };
 
 
@@ -228,10 +231,6 @@ const Building = () => {
         setTravelMode(mode);
         setShowTravelDropdown(false); // Close dropdown after selection
     };
-
-
-     
-
 
     // Open Google Maps with travel route selected, destination, and user location
     const openGoogleMaps = () => {
@@ -248,16 +247,10 @@ const Building = () => {
         window.open(mapsUrl, "_blank");
     };
 
-
-
-
-
-
     //while loading, show loading message, else if no building found, show error message
     if (loading) {
         return <div className="text-white text-center mt-10">Loading building details...</div>;
     }
-
 
     //error message if building not found
     if (!building) {
@@ -308,36 +301,45 @@ const Building = () => {
                     {/* Display AI-generated response if available */}
                     {aiResponse && (
                         <div className="mt-4 w-full max-w-lg bg-white text-black rounded-lg shadow-lg p-3">
-                            <p className="text-center font-semibold text-gray-700">AI Response:</p>
+                            <p className="text-center font-semibold text-gray-700">Gemini Explanation:</p>
                             <p className="text-center text-gray-900">{aiResponse}</p>
                         </div>
                     )}
 
-
-                    {/* DROPDOWN RESULTS -  working****/}
-                    {showDropdown && searchResults.length > 0 && !aiResponse && ( //when true, more than 0 result, and not an AI response
-                        <div className="absolute bg-white text-black w-full rounded-md shadow-lg mt-2 z-50">
+                    {aiLoading && (
+                        <div className="text-black mt-4">🧠 Generating Gemini explanation...</div>
+                    )}
+                    {isAcademicQuery && searchResults.length > 0 && !loading && (
+                        <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
+                            <p className="text-center font-semibold text-gray-700">Academic Events:</p>
                             <ul>
-                                {/*map through search results and display them + change color when hovered*/}
-                                {searchResults.map((building) => (
-                                   
-                                    <li key={building.id} onClick={() => {
-                                        navigate(`/building/${building.id}`); // ensure full box is clickable
-                                        setShowDropdown(false);
-                                      }}
-                                      className="hover:bg-gray-200 cursor-pointer px-4 py-2 transition-all"
-                                    >
-                                      <div>
-                                        <p className="font-medium">{building.building_name}</p>
-                                        {building.relevant_info && (
-                                          <p className="mt-2 text-sm text-gray-600 whitespace-pre-line" dangerouslySetInnerHTML={{ __html: building.relevant_info}}></p>
-                                        )}
-                                      </div>
+                                {searchResults.map((event, index) => (
+                                    <li key={index} className="cursor-pointer px-4 py-2 hover:bg-gray-200 rounded">
+                                        <p className="font-bold">{event.title}</p>
+                                        <p className="text-sm">{event.date}</p>
                                     </li>
                                 ))}
                             </ul>
                         </div>
                     )}
+                    {/* DROPDOWN RESULTS -  working****/}
+                    {!isAcademicQuery && searchResults.length > 0 && !loading && searchResults[0].id !== "ai-response" && (
+                <div className="mt-4 w-full max-w-xl bg-white text-black rounded-lg shadow-lg p-3">
+                    <p className="text-center font-semibold text-gray-700">Select a location:</p>
+                    <ul>
+                        {searchResults.map((b) => (
+                            <li key={b.id} className="cursor-pointer px-4 py-2 hover:bg-gray-200 rounded">
+                                <Link to={`/building/${b.id}`}>
+                                    {b.building_name}
+                                    {b.relevant_info && (
+                                        <p className="mt-2 text-sm text-gray-600 whitespace-pre-line" dangerouslySetInnerHTML={{ __html: b.relevant_info }}></p>
+                                    )}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
                 </div>
        
 
@@ -413,17 +415,10 @@ const Building = () => {
                             </div>
                         )}
 
-
-
-
-
-
                     {/* Building Name & description*/}
                     <h1 className="text-5xl font-bold">{building.building_name}</h1>
                     <p className="text-lg mt-4">{building.description}</p>
 
-
-                   
                     {/* Additional Details */}
                     <div className="mt-6">                        
                         {/*renders only if building.operating_hours exists in firebase*/}
@@ -510,15 +505,6 @@ const Building = () => {
                                                     </ul>
                                                 </>
                                                 )}
-
-
-
-
-
-
-
-
-                                               
                                             </div>
                                             )}
                                         </li>
@@ -590,6 +576,5 @@ const Building = () => {
             </div>
         );
     };
-
 
 export default Building;
