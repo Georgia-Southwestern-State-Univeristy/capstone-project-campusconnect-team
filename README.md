@@ -228,6 +228,15 @@ npm start
 
 
 # Description of Pages:
+## `/public`:
+### `Index.html`:
+   * The core HTML structure for the CampusConnect web application.
+   * Features:
+     - Provides a container (`<div id="root">`) where the React app is rendered.
+     - Sets up metadata (`<meta>` tags) for character encoding and responsive design.
+     - Loads Tailwind CSS via CDN for styling.
+     - Defines a custom Tailwind theme with navy and gold brand colors.
+     - Applies a global background (`bg-navy text-white`) to maintain consistent UI styling.
 
 ## `/src/pages`:
 
@@ -241,7 +250,9 @@ npm start
        - Displays search results in a dropdown list.
        - Redirects users to a building’s page if only one match is found.
      - Offers recommendation buttons for commonly searched places (Library, Gym, Cafe, etc.).
+     -Displays AI results or lists of matching buildings dynamically. 
      - Enhances user experience with a responsive UI and smooth navigation.
+     - Includes direct links to About.js and Contact.js at the top right for quick access without a navbar.
 
 ### `Building.js`:
    * Dynamically renders detailed information about a selected campus building based on the URL parameter. Displays slideshow images, operating hours, services, departments, and includes Google Maps navigation with walking/driving routes from the user’s live location.
@@ -250,6 +261,13 @@ npm start
      - Uses React Router for page navigation.
      - Handles search functionality using `firestoreSearchService.js`.
      - Integrates Google Maps API for location visualization.
+     - Shows a responsive layout of:
+        - Building name and image.
+        - Descriptions, services, office hours, department listings, and contact info.
+        - An embedded MapNavigation component that provides live route directions.
+     - Allows switching between walking and driving travel modes.
+     - Shows real-time distance (in miles or steps) from user’s current location.
+     - Error handling for map or location failures.
      
 ### `Contact.js`:
    * Provides users with direct communication channels for reaching the CampusConnect development team. Rather than serving general university contact info, this page is specifically designed for gathering user feedback, support requests, suggestions, or bug reports related to the app itself. It's meant to promote transparency, encourage engagement, and ensure continuous improvement of the platform based on real user input.
@@ -289,7 +307,11 @@ npm start
      - Full Map Coverage: Ensures the map fills its container using width: 100% and height: 100%.
      - Absolute Positioning: Uses position: absolute with top: 0 and left: 0 to layer the map correctly inside its wrapper.
      - Min-Height Safeguard: Applies a minimum height (400px) to prevent rendering issues where the map may appear blank due to no vertical space being allocated — especially useful for mobile views or when containers collapse.
-
+### `NotFound.js`:
+* Custom 404 page rendered for invalid routes or broken links.
+   * Features:
+     - Displays a friendly error message and button to return to the home screen.
+     - Maintains app branding and UI consistency.
 
 ## `/src/services`:
 
@@ -318,9 +340,7 @@ npm start
        - Generates a reference to that document.
        - Updates the document to include an "id" field with the document’s Firestore ID.
      - Commits the batch operation, applying all updates efficiently in one transaction.
-     - Logs a confirmation message once all documents are updated.
-
-## `/src`:
+     - Logs a confirmation message once all documents are updated
 
 ### `App.js`:
    * Entry point of the CampusConnect application.
@@ -331,24 +351,48 @@ npm start
        - Building Page (`/building/:id`) → Displays detailed building information.
        - NotFound Page (`*`) → Handles unmatched routes (404 page).
      - Tests Firestore Connection when the app starts to ensure the database is accessible.
-     - Applies a Global Background Style to maintain UI consistency.
+     - Applies a Global Background Style to maintain UI consistency
 
-### `Index.js`:
+### `googleMapsLoader.js`:
+* Dynamically injects the Google Maps JavaScript API script into the app.
+   * Features:
+     - Checks if the API script is already loaded to prevent duplicates.
+     - Uses environment variable for secure API key access.
+     - Appends the script on mount and cleans up on unmount.
+     - Used globally so the map loads efficiently without direct imports in each component. styling.
+### `webScraper.js`:
+* Scrapes the GSW Academic Calendar using Cheerio + Axios..
+   * Features:
+     - Extracts events (title and date) from each term-specific table (Spring, Summer, Fall).
+     - Stores results in WebScraperData > AcademicCalendar in Firestore.
+     - Supports Gemini AI fallback queries like “When is Spring Break?”
+     - Uses serverTimestamp() for traceable entry metadata. component. styling.    
+### `multiScraper.js`:
+* Uses Puppeteer (headless browser) to scrape dynamic pages like Admissions and Community Events.
+   * Features:
+     - Admissions Scraper:
+        - Loads and screenshots content.
+        - Extracts paragraph blocks from <main> content.
+        - Saves to WebScraperData > AdmissionsPage.
+
+     - Community Events Scraper:
+        - Auto-scrolls and loads listing page.
+        - Detects event cards or falls back to anchor links.
+        - Visits each event’s detail page to extract date, time, location, and description.
+        - Saves events to WebScraperData > CommunityEvents.
+## `/`:
+
+### `index.js`:
    * The entry point for rendering the CampusConnect React application.
    * Features:
-     - Initializes the React app using `ReactDOM.createRoot()` for React 18+ compatibility.
-     - Renders the `App` component inside the `<div id="root">` in `index.html`.
-     - Uses `React.StrictMode` to detect potential issues and ensure best practices in development mode.
+     - Imports React and ReactDOM to initialize and render the app using React 18+ syntax.
+     - Creates a root element using ReactDOM.createRoot() to target the <div id="root"> in index.html.
+     - Wraps the app in React.StrictMode:
+        - Helps identify potential issues early.
+        - Ensures adherence to React best practices during development.
 
-### `Index.html`:
-   * The core HTML structure for the CampusConnect web application.
-   * Features:
-     - Provides a container (`<div id="root">`) where the React app is rendered.
-     - Sets up metadata (`<meta>` tags) for character encoding and responsive design.
-     - Loads Tailwind CSS via CDN for styling.
-     - Defines a custom Tailwind theme with navy and gold brand colors.
-     - Applies a global background (`bg-navy text-white`) to maintain consistent UI styling.
-
+     - Renders the App component, which contains all page routes and core UI logic.
+ 
 # Contributor Guidelines:
 
 ## 1. Branching Strategy:
